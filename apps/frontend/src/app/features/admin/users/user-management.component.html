@@ -1,0 +1,77 @@
+<div class="admin-page">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>User Management</h1>
+        <p>Manage admins and clients who can access Delivreel.</p>
+      </div>
+      <button class="btn btn-primary" (click)="startCreate()">Create User</button>
+    </div>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <p class="empty" *ngIf="isLoading">Loading users...</p>
+
+    <form class="admin-card" [formGroup]="userForm" (ngSubmit)="saveUser()" *ngIf="showForm">
+      <h2>{{ editingUser ? 'Edit User' : 'Create User' }}</h2>
+      <div class="form-grid">
+        <label>
+          <span>Name</span>
+          <input class="form-control" formControlName="name" />
+        </label>
+        <label>
+          <span>Email</span>
+          <input class="form-control" type="email" formControlName="email" />
+        </label>
+        <label>
+          <span>Password</span>
+          <input class="form-control" type="password" formControlName="password" [placeholder]="editingUser ? 'Unchanged' : 'Minimum 6 characters'" />
+        </label>
+        <label>
+          <span>Role</span>
+          <select class="form-control" formControlName="role">
+            <option value="client">Client</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" formControlName="isActive" /> Active
+      </label>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">Save</button>
+      </div>
+    </form>
+
+    <div class="admin-card table-card" *ngIf="!isLoading && users.length">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td><span class="status" [class.inactive]="!user.isActive">{{ user.isActive ? 'Active' : 'Inactive' }}</span></td>
+            <td>{{ user.createdAt | date:'short' }}</td>
+            <td class="actions">
+              <button class="btn-link" (click)="startEdit(user)">Edit</button>
+              <button class="btn-link" (click)="toggleActive(user)">{{ user.isActive ? 'Deactivate' : 'Reactivate' }}</button>
+              <button class="btn-link danger" (click)="deleteUser(user)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="empty" *ngIf="!isLoading && !users.length">No users yet.</p>
+  </div>
+</div>

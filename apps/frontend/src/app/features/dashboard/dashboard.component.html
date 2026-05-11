@@ -1,0 +1,115 @@
+<div class="dashboard">
+  <div class="container">
+    <div class="dashboard-header">
+      <h1>Dashboard</h1>
+      <p>Welcome back, {{ currentUser?.name }}!</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📁</div>
+        <div class="stat-content">
+          <h3>{{ projects.length }}</h3>
+          <p>Total Projects</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🎥</div>
+        <div class="stat-content">
+          <h3>{{ videos.length }}</h3>
+          <p>Total Videos</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-content">
+          <h3>{{ processingVideos }}</h3>
+          <p>Processing</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <h3>{{ readyVideos }}</h3>
+          <p>Ready to View</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-content">
+      <div class="recent-projects">
+        <div class="section-header">
+          <h2>Recent Projects</h2>
+          <a routerLink="/projects" class="btn btn-outline">View All</a>
+        </div>
+
+        @if(projects.length > 0) {
+          <div class="projects-grid">
+            <div class="project-card" *ngFor="let project of recentProjects">
+              <div class="project-header">
+                <h3>{{ project.title }}</h3>
+                <span class="project-date">{{ project.createdAt | date:'short' }}</span>
+              </div>
+              <p class="project-description">{{ project.description || 'No description' }}</p>
+              <div class="project-stats">
+                <span class="stat">{{ project.videos.length || 0 }} videos</span>
+                <span class="stat">{{ project.clientEmails.length || 0 }} clients</span>
+              </div>
+              <div class="project-actions">
+                <a [routerLink]="['/projects', project.id]" class="btn btn-primary">View Project</a>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <div class="empty-icon">📁</div>
+            <h3>No Projects Yet</h3>
+            <p>Create your first project to get started with video collaboration.</p>
+            <a routerLink="/projects" class="btn btn-primary">Create Project</a>
+          </div>
+        }
+      </div>
+
+      @if (currentUser?.role !== 'client'){
+      <div class="recent-videos">
+        <div class="section-header">
+          <h2>Recent Videos</h2>
+        </div>
+        @if(videos.length > 0) {
+          <div class="videos-list">
+            <div class="video-item" *ngFor="let video of recentVideos">
+              <div class="video-thumbnail">
+                <div class="video-icon">🎥</div>
+                <div class="video-status" [class]="'status-' + video.status">
+                  {{ video.status }}
+                </div>
+              </div>
+              <div class="video-info">
+                <h4>{{ video.title }}</h4>
+                <p>{{ video.project?.title }}</p>
+                <span class="video-date">{{ video.createdAt | date:'short' }}</span>
+              </div>
+              <div class="video-actions">
+                <a [routerLink]="['/videos', video.id]"
+                  class="btn btn-primary"
+                  [class.disabled]="video.status !== 'ready'">
+                  {{ video.status === 'ready' ? 'Watch' : 'Processing...' }}
+                </a>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <div class="empty-icon">🎥</div>
+            <h3>No Videos Yet</h3>
+            <p>Upload your first video to start collaborating.</p>
+          </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</div>

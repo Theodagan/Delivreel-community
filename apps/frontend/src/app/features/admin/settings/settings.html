@@ -1,0 +1,72 @@
+<div class="page">
+  <div class="container">
+    <h1>Settings</h1>
+
+    <section class="settings-card">
+      <div class="status-header">
+        <div>
+          <h2>Self-host Preferences</h2>
+          <p class="status-hint">Configure review defaults for this deployment.</p>
+        </div>
+      </div>
+
+      <div class="status-body" *ngIf="settingsLoading">
+        <p class="status-hint">Loading settings...</p>
+      </div>
+
+      <div class="status-body" *ngIf="!settingsLoading && settings">
+        <div class="status-grid">
+          <div>
+            <span class="status-label">Environment</span>
+            <span class="status-value">{{ settings.appEnvironment | titlecase }}</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="status-error" *ngIf="settingsError">{{ settingsError }}</p>
+    </section>
+
+    <form class="settings-form" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" *ngIf="settings">
+      <section class="settings-card">
+        <h2>Review Preferences</h2>
+
+        <div class="form-grid">
+          <label class="form-field">
+            <span>Timeline Marker Size</span>
+            <select formControlName="timelineMarkerSize" class="form-control">
+              <option value="compact">Compact</option>
+              <option value="comfortable">Comfortable</option>
+              <option value="large">Large</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Default Comment Filter</span>
+            <select formControlName="defaultCommentFilter" class="form-control">
+              <option value="all">All</option>
+              <option value="open">Open</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="toggle-row">
+          <span>Autoplay after media loads</span>
+          <mat-slide-toggle formControlName="autoplayOnLoad"></mat-slide-toggle>
+        </label>
+
+        <label class="toggle-row">
+          <span>Show provider badge on player</span>
+          <mat-slide-toggle formControlName="showProviderBadge"></mat-slide-toggle>
+        </label>
+      </section>
+
+      <div class="form-actions">
+        <p class="status-value success" *ngIf="saveMessage">{{ saveMessage }}</p>
+        <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+          {{ isSaving ? 'Saving...' : 'Save Settings' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

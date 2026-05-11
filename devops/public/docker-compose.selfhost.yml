@@ -1,0 +1,61 @@
+services:
+  api:
+    image: ${DELIVREEL_API_IMAGE:-delivreel/delivreel-api:latest}
+    env_file:
+      - ../../${ENV_FILE:-.env}
+    environment:
+      APP_ENV: selfhost
+      NODE_ENV: production
+      VIDEO_PROVIDER: local
+      BACKEND_BIND_PORT: 3000
+    volumes:
+      - ../../resources/public/uploads:/app/uploads
+      - ../../resources/public/hls:/app/hls
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    networks:
+      - delivreel-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    env_file:
+      - ../../${ENV_FILE:-.env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - delivreel-network
+    restart: unless-stopped
+
+  frontend:
+    image: ${DELIVREEL_FRONTEND_IMAGE:-delivreel/delivreel-frontend:latest}
+    env_file:
+      - ../../${ENV_FILE:-.env}
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    depends_on:
+      - api
+    networks:
+      - delivreel-network
+    restart: unless-stopped
+
+  adminer:
+    image: adminer
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    depends_on:
+      - postgres
+    networks:
+      - delivreel-network
+    restart: unless-stopped
+
+networks:
+  delivreel-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -1,0 +1,15 @@
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0a0a0a;
+  color: #ffffff;
+}
+
+.main-content {
+  flex: 1;
+}
+
+.main-content.with-navbar {
+  margin-top: 60px;
+}

@@ -1,0 +1,219 @@
+@if (video) {
+  <div class="video-player-page">
+    @if (video.status !== 'ready' && !isVideoReady) {
+      <div class="processing-banner" [class.processing-error]="hasVideoError">
+        <div class="processing-text">
+          @if (isVideoProcessing) {
+            <p>This video is currently processing. We'll let you know once it is ready.</p>
+          } @else {
+            <p>Transcoding failed for this video. Please upload a new file.</p>
+          }
+        </div>
+        <button class="btn btn-secondary" (click)="navigateToProject()">
+          Back to Project
+        </button>
+      </div>
+    }
+
+    <div class="video-container">
+      <div class="video-wrapper">
+        @if (isVideoReady) {
+          @if (playbackSource) {
+            <app-playback-host
+              [source]="playbackSource"
+              [autoplay]="appSettings?.autoplayOnLoad ?? false"
+              [token]="authService.getToken()"
+              (timeUpdate)="onTimeUpdate($event)"
+              (durationChange)="onVideoLoaded()"
+              (playbackError)="setPlaybackError($event)">
+            </app-playback-host>
+          }
+
+          @if (playbackError) {
+            <div class="playback-error">
+              {{ playbackError }}
+            </div>
+          }
+           
+          <!-- Comment Markers -->
+          @if (videoDuration > 0){
+            <div class="comment-markers" [ngClass]="markerSizeClass" aria-label="Comment timeline markers">
+              <div class="comment-marker" 
+                  *ngFor="let comment of comments"
+                  [style.left.%]="(comment.timestamp / videoDuration) * 100"
+                  (click)="seekToComment(comment)"
+                  tabindex="0"
+                  role="button"
+                  (keydown.enter)="seekToComment(comment)"
+                  (keydown.space)="seekToComment(comment)"
+                  [title]="comment.text">
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="video-processing-placeholder">
+            <div class="processing-spinner"></div>
+            <p>{{ isVideoProcessing ? 'Video is processing...' : 'Video unavailable' }}</p>
+          </div>
+        }
+      </div>
+  
+      <div class="video-info">
+        <h1>{{ video.title }}</h1>
+        <p>{{ video.description || 'No description' }}</p>
+        <div class="video-meta">
+          <span>{{ video.project.title }}</span>
+          <span>{{ video.createdAt | date:'medium' }}</span>
+          <span>{{ formatFileSize(video.size) }}</span>
+        </div>
+        <div class="video-actions" *ngIf="canUploadVideo()">
+          <button class="btn btn-secondary" (click)="openUploadModal()">
+            Upload New Version
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <div class="comments-section">
+      <div class="comments-header">
+        <h2>Comments ({{ comments.length }})</h2>
+        <div class="comments-tools">
+          <select class="comment-filter" [(ngModel)]="commentFilter">
+            <option value="all">All</option>
+            <option value="open">Open</option>
+            <option value="resolved">Resolved</option>
+          </select>
+          <button class="btn btn-primary" (click)="showAddComment = true">
+            Add Comment
+          </button>
+        </div>
+      </div>
+  
+      <!-- Add Comment Form -->
+      <div class="add-comment-form" *ngIf="showAddComment">
+        <form [formGroup]="commentForm" (ngSubmit)="addComment()">
+          <div class="form-group">
+            <label>Comment at {{ formatTime(currentTime) }}</label>
+            <textarea
+              formControlName="text"
+              class="form-control"
+              rows="3"
+              placeholder="Enter your comment..."
+            ></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="cancelAddComment()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="commentForm.invalid">
+              Add Comment
+            </button>
+          </div>
+        </form>
+      </div>
+  
+      <!-- Comments List -->
+      <div class="comments-list">
+        <div class="comment-item" *ngFor="let comment of sortedComments">
+          <div class="comment-header">
+            <div class="comment-author">{{ comment.author?.name || 'Unknown' }}</div>
+            <div class="comment-timestamp" (click)="seekToComment(comment)">
+              {{ formatTime(comment.timestamp) }}
+            </div>
+            <div class="comment-date">{{ comment.createdAt | date:'short' }}</div>
+          </div>
+          @if (editingCommentId === comment.id) {
+            <form class="edit-comment-form" [formGroup]="editCommentForm" (ngSubmit)="saveCommentEdit(comment)">
+              <textarea formControlName="text" class="form-control" rows="3"></textarea>
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" (click)="cancelCommentEdit()">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="editCommentForm.invalid">Save</button>
+              </div>
+            </form>
+          } @else {
+            <div class="comment-text">{{ comment.text }}</div>
+          }
+          <div class="comment-actions" *ngIf="canManageComment(comment)">
+            <button class="btn-link" (click)="editComment(comment)" *ngIf="!comment.resolved">
+              Edit
+            </button>
+            <button class="btn-link" (click)="deleteComment(comment)">
+              Delete
+            </button>
+            <button class="btn-link resolve-btn" (click)="resolveComment(comment)" 
+                    *ngIf="!comment.resolved && canResolveComment(comment)">
+              Resolve
+            </button>
+            <span class="resolved-badge" *ngIf="comment.resolved">Resolved</span>
+          </div>
+        </div>
+        @if (comments.length === 0){
+          <div class="empty-comments">
+            <p>No comments yet. Add the first comment!</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<div class="loading-state" *ngIf="!video">
+  <div class="spinner"></div>
+  <p>Loading video...</p>
+</div>
+
+@if (showUploadModal) {
+  <div class="modal-overlay" (click)="closeUploadModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Upload New Version</h2>
+        <button class="close-btn" (click)="closeUploadModal()">×</button>
+      </div>
+
+      <form [formGroup]="uploadForm" (ngSubmit)="onUpload()" class="modal-form">
+        <div class="form-group">
+          <label for="newTitle">Video Title</label>
+          <input
+            type="text"
+            id="newTitle"
+            formControlName="title"
+            class="form-control"
+            placeholder="Enter video title"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="newDescription">Description</label>
+          <textarea
+            id="newDescription"
+            formControlName="description"
+            class="form-control"
+            rows="3"
+            placeholder="Enter video description (optional)"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="newVideoFile">Video File</label>
+          <input
+            type="file"
+            id="newVideoFile"
+            (change)="onFileSelected($event)"
+            class="form-control"
+            accept="video/*"
+          >
+          <small class="form-text">Supported formats: MP4, MOV, AVI</small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="uploadForm.invalid || !selectedFile || isUploading">
+            {{ isUploading ? 'Uploading...' : 'Upload Version' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

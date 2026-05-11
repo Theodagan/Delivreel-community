@@ -1,0 +1,66 @@
+<div class="admin-page">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>Project Management</h1>
+        <p>Review, edit, and remove projects across the workspace.</p>
+      </div>
+    </div>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <p class="empty" *ngIf="isLoading">Loading projects...</p>
+
+    <form class="admin-card" [formGroup]="projectForm" (ngSubmit)="saveProject()" *ngIf="editingProject">
+      <h2>Edit Project</h2>
+      <div class="form-grid">
+        <label>
+          <span>Title</span>
+          <input class="form-control" formControlName="title" />
+        </label>
+        <label>
+          <span>Client Emails</span>
+          <input class="form-control" formControlName="clientEmails" placeholder="client@example.com, team@example.com" />
+        </label>
+      </div>
+      <label class="full-field">
+        <span>Description</span>
+        <textarea class="form-control" rows="3" formControlName="description"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="projectForm.invalid">Save</button>
+      </div>
+    </form>
+
+    <div class="admin-card table-card" *ngIf="!isLoading && projects.length">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Owner</th>
+            <th>Clients</th>
+            <th>Videos</th>
+            <th>Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let project of projects">
+            <td>{{ project.title }}</td>
+            <td>{{ project.owner?.email || project.ownerId }}</td>
+            <td>{{ project.clientEmails.length || 0 }}</td>
+            <td>{{ project.videos.length || 0 }}</td>
+            <td>{{ project.updatedAt | date:'short' }}</td>
+            <td class="actions">
+              <a class="btn-link" [routerLink]="['/projects', project.id]">View</a>
+              <button class="btn-link" (click)="startEdit(project)">Edit</button>
+              <button class="btn-link danger" (click)="deleteProject(project)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="empty" *ngIf="!isLoading && !projects.length">No projects yet.</p>
+  </div>
+</div>

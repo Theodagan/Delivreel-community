@@ -1,0 +1,125 @@
+<div class="project-detail" *ngIf="project">
+  <div class="container">
+    <div class="project-header">
+      <div class="header-content">
+        <h1>{{ project.title }}</h1>
+        <p>{{ project.description || 'No description' }}</p>
+        <div class="project-meta">
+          <span class="meta-item">Created {{ project.createdAt | date:'medium' }}</span>
+          <span class="meta-item">{{ project.videos.length || 0 }} videos</span>
+          <span class="meta-item">{{ project.clientEmails.length || 0 }} clients</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a [routerLink]="['/projects', project.id, 'settings']" class="btn btn-secondary" >Settings</a>
+        <button class="btn btn-primary" (click)="showUploadModal = true" *ngIf="canUploadVideo()">
+          Upload Video
+        </button>
+      </div>
+    </div>
+
+    <div class="project-content">
+      <div class="videos-section">
+        <h2>Videos</h2>
+        @if (project.videos.length > 0){
+          <div class="videos-grid">
+            <div class="video-card" *ngFor="let video of project.videos">
+              <div class="video-thumbnail">
+                <div class="video-icon">🎥</div>
+                <div class="video-status" [class]="'status-' + video.status">
+                  {{ video.status }}
+                </div>
+              </div>
+              <div class="video-info">
+                <h3>{{ video.title }}</h3>
+                <p class="video-meta">
+                  {{ video.size | number }} bytes • {{ video.createdAt | date:'short' }}
+                </p>
+                <div class="video-actions">
+                  <a [routerLink]="['/videos', video.id]" 
+                    class="btn btn-primary" 
+                    [class.disabled]="video.status !== 'ready'">
+                    {{ video.status === 'ready' ? 'Watch' : 'Processing...' }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <div class="empty-icon">🎥</div>
+            <h3>No Videos Yet</h3>
+            <p>Upload your first video to start collaborating on this project.</p>
+            <button class="btn btn-primary" (click)="showUploadModal = true" *ngIf="canUploadVideo()">
+              Upload Video
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Video Modal -->
+ @if(showUploadModal){
+  <div class="modal-overlay" (click)="closeUploadModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Upload Video</h2>
+        <button class="close-btn" (click)="closeUploadModal()">×</button>
+      </div>
+
+      <form [formGroup]="uploadForm" (ngSubmit)="onUpload()" class="modal-form">
+        <div class="form-group">
+          <label for="title">Video Title</label>
+          <input
+            type="text"
+            id="title"
+            formControlName="title"
+            class="form-control"
+            placeholder="Enter video title"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            class="form-control"
+            rows="3"
+            placeholder="Enter video description (optional)"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="video">Video File</label>
+          <input
+            type="file"
+            id="video"
+            (change)="onFileSelected($event)"
+            class="form-control"
+            accept="video/*"
+          >
+          <small class="form-text">Supported formats: MP4, MOV, AVI (Max: 500MB)</small>
+        </div>
+
+        <div class="upload-progress" *ngIf="uploadProgress > 0">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+          </div>
+          <span class="progress-text">{{ uploadProgress }}%</span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="uploadForm.invalid || !selectedFile || isUploading">
+            {{ isUploading ? 'Uploading...' : 'Upload Video' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
