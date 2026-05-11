@@ -1,86 +1,133 @@
 # Delivreel
 
-Delivreel is a collaborative video review platform designed to streamline feedback, discussion, and iteration around video content.
+Plateforme de revue vidéo collaborative en cours de développement.
 
-Built for teams who need a simple and structured way to review media together, Delivreel combines video playback, project organization, and collaborative commenting in a single product.
+## État du projet
 
-## Why Delivreel
+Le projet n'est pas finalisé. L'application évolue encore et certaines parties ont bougé depuis la création du README initial.
 
-Reviewing video with a team is often fragmented across chat, email, cloud drives, and disconnected feedback tools. Delivreel aims to provide a more focused workflow by bringing video review and discussion into one place.
+Aujourd'hui, le seul mode testé et public est la version self-hosted avec :
 
-With Delivreel, teams can:
+- frontend Angular
+- API NestJS
+- transcodage vidéo local géré par le serveur NestJS via FFmpeg
+- base PostgreSQL via Docker Compose, ou SQLite en mode simple
 
-- centralize video review workflows
-- organize content by project
-- collaborate through in-context discussion
-- run the platform in a self-hosted environment
-- keep control over their infrastructure and media pipeline
+Cette version peut être auto-hébergée dès maintenant.
 
-## Core capabilities
+Point important : Delivreel peut fonctionner en 100% local, sans dépendance cloud, pour l'instant c'est meme le seul mode public.
 
-- video upload
-- video playback
-- collaborative comments
-- project management
-- user authentication
-- API documentation
+### Les Modes
 
-## Product positioning
+  #### Mode local 100%
 
-Delivreel is being developed as a flexible platform for collaborative media workflows, with a strong emphasis on self-hosting and deployment autonomy.
+  Dans ce mode, Delivreel ne dépend d'aucun service cloud pour l'upload, l'encodage ou la lecture.
 
-The project is particularly suited to teams looking for:
+  - les fichiers sont uploadés vers le backend NestJS
+  - le backend stocke les médias localement
+  - le transcodage HLS est effectué localement via FFmpeg
+  - la lecture passe par les endpoints locaux du projet
+  - l'authentification et l'autorisation de lecture restent gérées par Delivreel
 
-- a private video review environment
-- more control over infrastructure and hosting
-- a customizable full-stack codebase
-- a foundation for internal media collaboration tools
+  Ce mode est le plus autonome et le plus mature aujourd'hui.
 
-## Technology stack
+  En self-host officiel, ce mode est le seul mode supporté aujourd'hui.
 
-- **Frontend:** Angular
-- **UI:** Angular Material
-- **Backend:** NestJS
-- **Database:** PostgreSQL or SQLite
-- **Realtime:** WebSocket
-- **Uploads:** Multer
-- **Video processing:** FFmpeg
-- **API docs:** Swagger
 
-## Repository structure
+## Version hébergée
 
-```text
-apps/
-  frontend/
-  backend/
-```
+Une version hébergée publique n'est pas encore lancée.
 
-## Getting started
+Le point bloquant n'est pas seulement technique : le projet cherche encore un modèle économique viable avant un lancement public. En ce moment, l'une des pistes explorées est une intégration Mux pour la gestion du pipeline vidéo sur une version hébergée.
 
-### Prerequisites
+En pratique :
 
-Make sure you have the following installed:
+- le code fonctionne
+- le pricing reste a déterminer et implementer
+- le mode self-host reste séparé et basé sur le pipeline local
 
-- Docker
-- Docker Compose
+## Stack actuelle
 
-### Quick start
+- Frontend : Angular 20
+- UI : Angular Material
+- Lecture vidéo : `hls.js`
+- Temps réel : `socket.io` / WebSocket Gateway NestJS
+- Backend : NestJS 11
+- ORM : TypeORM
+- Base de données : PostgreSQL ou SQLite (`better-sqlite3`)
+- Authentification : JWT + refresh tokens + Passport
+- Uploads : Multer
+- Transcodage local : FFmpeg via `fluent-ffmpeg`
+- Documentation API : Swagger sur `/api`
+- Reverse proxy dev/self-host : Nginx
+- Admin base de données en dev : Adminer
+- Exploration cloud video : Mux
 
-Create your environment file:
+## Ce qui est opérationnel aujourd'hui
+
+- upload de vidéos
+- transcodage local en HLS
+- lecture vidéo
+- commentaires temps réel par vidéo
+- gestion de projets
+- authentification JWT
+- exécution via Docker Compose
+
+## Démarrage développement Docker
+
+Le compose par défaut est dédié au développement avec hot reload.
+
+1. Créer le fichier d'environnement :
 
 ```bash
 cp .env.example .env
 ```
 
-Start the application stack:
+2. Lancer la stack de développement :
 
 ```bash
 docker compose up --build
 ```
 
-## Local development
+3. Accéder aux services :
 
-You can also run the applications independently during development.
+- application via Nginx : `http://localhost:${NGINX_PORT}`
+- frontend direct : `http://localhost:${FRONTEND_PORT}`
+- API : `http://localhost:${NGINX_PORT}/api`
+- healthcheck : `http://localhost:${BACKEND_PORT}/health`
+- Adminer : `http://localhost:${ADMINER_PORT}`
+
+Par défaut, `docker-compose.yml` correspond au mode développement et démarre aussi PostgreSQL.
+
+## Base de données
+
+Le backend choisit la base selon la configuration :
+
+- si `DATABASE_URL` est défini : PostgreSQL
+- sinon (obsolete) : SQLite via `DATABASE_PATH` (par défaut `/app/database.sqlite`) 
+
+Important : le compose de développement fourni est orienté PostgreSQL.
+
+## Variables importantes
+
+| Variable | Role |
+| --- | --- |
+| `DATABASE_URL` | Active PostgreSQL si définie |
+| `DATABASE_PATH` | Chemin SQLite si `DATABASE_URL` est absente |
+| `JWT_SECRET` | Secret JWT |
+| `JWT_REFRESH_SECRET` | Secret refresh token |
+| `BACKEND_BIND_PORT` | Port d'écoute interne de l'API |
+| `BACKEND_PORT` | Port exposé pour l'API |
+| `FRONTEND_PORT` | Port du serveur Angular |
+| `NGINX_PORT` | Port d'entrée principal |
+| `POSTGRES_PORT` | Port exposé PostgreSQL |
+| `ADMINER_PORT` | Port Adminer |
+| `DELIVREEL_API_IMAGE` | Image backend utilisée par `devops/public/docker-compose.selfhost.yml` |
+| `DELIVREEL_FRONTEND_IMAGE` | Image frontend utilisée par `devops/public/docker-compose.selfhost.yml` |
+| `UPLOAD_PATH` | Dossier des uploads |
+| `HLS_PATH` | Dossier des sorties HLS |
+
+## Développement local sans Docker
 
 ### Backend
 
@@ -98,24 +145,36 @@ npm install
 npm run dev
 ```
 
-## Self-hosting
+## Notes d'architecture
 
-Delivreel is designed to support self-hosted deployments.
+- le frontend vit dans `apps/frontend/`
+- le backend NestJS vit dans `apps/backend/`
+- les fichiers uploadés sont servis depuis `/uploads`
+- le dossier HLS n'est pas exposé statiquement de façon publique par le backend
+- Swagger est disponible sur `/api`
 
-The project can be run in a private environment, making it a strong fit for teams that want to keep ownership of their platform, configuration, and media workflows.
+## Auto-hébergement
 
-## Project status
+Si votre objectif est d'auto-héberger Delivreel aujourd'hui, la voie la plus concrète est :
 
-Delivreel is under active development.  
-Features, workflows, and product direction may continue to evolve as the platform matures.
+1. garder le pipeline local NestJS + FFmpeg
+2. utiliser PostgreSQL via `make selfhost-docker-up`
+3. ne pas activer Mux tant que vous ne cherchez pas à expérimenter la piste hébergée
 
-## Contributing
+C'est le mode le plus mature du dépôt à ce jour.
 
-The project is still evolving.  
-If you are interested in contributing, collaborating, or discussing a specific use case, please get in touch before starting broader integration work.
+## Licence
 
-## License
+Le dépôt ne contient pas encore de fichier `LICENSE`.
 
-No `LICENSE` file is currently provided in this repository.
+En l'état, ce dépôt n'est pas publié sous une licence open source.
 
-Unless explicit written permission is granted, no right to reuse, modify, redistribute, or commercially exploit this project should be assumed.
+Une autorisation limitée est accordée pour un usage personnel et non commercial : consultation du code, test, exécution locale, expérimentation et auto-hébergement à titre personnel.
+
+En revanche, toute utilisation commerciale, toute revente, toute intégration dans une offre payante, toute prestation facturée reposant sur ce projet, ou toute exploitation professionnelle au bénéfice d'une structure tierce nécessite une autorisation écrite préalable.
+
+Pour une utilisation commerciale, merci de vous rapprocher de l'auteur du projet.
+
+Sauf pour l'autorisation limitée d'usage personnel non commercial décrite ci-dessus, l'ensemble du code source, des contenus et des fichiers de ce projet reste protégé par le droit d'auteur. Tous droits réservés.
+
+La publication de ce dépôt en public ne vaut pas autorisation générale de réutilisation, modification, redistribution ou exploitation commerciale en dehors des droits minimaux éventuellement accordés par la plateforme d'hébergement.
