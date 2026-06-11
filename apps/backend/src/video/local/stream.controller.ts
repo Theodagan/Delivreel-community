@@ -95,7 +95,7 @@ export class StreamController {
       throw new UnauthorizedException('JWT secret not configured');
     }
 
-    const payload = jwt.verify(bearerToken, secret) as { sub: string; role: string };
-    return this.videoAccessService.findAccessibleVideo(videoId, payload.sub, payload.role);
+    const payload = jwt.verify(bearerToken, secret) as unknown as { sub: number };
+    return this.videoAccessService.findAccessibleVideo(videoId, payload.sub);
   }
 }

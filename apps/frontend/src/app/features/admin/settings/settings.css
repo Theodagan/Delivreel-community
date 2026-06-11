@@ -1,9 +1,9 @@
 .settings-card {
-  background: #1f1f1f;
-  border-radius: 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  border: 1px solid #2d2d2d;
+  border: 1px solid var(--border);
 }
 
 .status-header {
@@ -16,7 +16,7 @@
 
 .status-header h2,
 .settings-card h2 {
-  color: #fff;
+  color: var(--fg-default);
   margin: 0 0 0.5rem;
 }
 
@@ -30,29 +30,29 @@
 .status-label,
 .form-field span {
   display: block;
-  font-size: 0.75rem;
-  color: #a0aec0;
+  font: var(--type-label-caps);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--tracking-label-caps);
+  color: var(--fg-muted);
   margin-bottom: 0.35rem;
 }
 
 .status-value {
-  color: #f7fafc;
+  color: var(--fg-default);
   font-weight: 600;
 }
 
 .status-value.error,
 .status-error {
-  color: #feb2b2;
+  color: var(--status-danger-fg);
 }
 
 .status-value.success {
-  color: #9ae6b4;
+  color: var(--status-success-fg);
 }
 
 .status-hint {
-  color: #cbd5e0;
+  color: var(--fg-muted);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -61,21 +61,21 @@
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 700;
-  background: #2d3748;
-  color: #e2e8f0;
+  background: var(--surface-container-high);
+  color: var(--fg-default);
 }
 
 .status-pill.local {
-  background: rgba(56, 161, 105, 0.2);
-  color: #9ae6b4;
+  background: var(--status-success-bg);
+  color: var(--status-success-fg);
 }
 
 .status-pill.neutral {
-  background: rgba(113, 128, 150, 0.2);
-  color: #e2e8f0;
+  background: var(--surface-container-highest);
+  color: var(--fg-default);
 }
 
 .settings-form {
@@ -83,16 +83,16 @@
 }
 
 .form-field {
-  color: #fff;
+  color: var(--fg-default);
 }
 
 .form-control {
   width: 100%;
   padding: 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #333;
-  background: #2a2a2a;
-  color: #fff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-container);
+  color: var(--fg-default);
 }
 
 .form-control:disabled {
@@ -109,7 +109,7 @@ textarea.form-control {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  color: #f7fafc;
+  color: var(--fg-default);
   margin-top: 1rem;
 }
 

@@ -1,118 +1,78 @@
 <div class="projects-page">
   <div class="container">
-    <div class="page-header">
-      <div class="header-content">
+    <header class="page-header">
+      <div>
         <h1>Projects</h1>
         <p>Manage your video collaboration projects</p>
       </div>
-      @if(isAdmin) {
-        <button class="btn btn-primary" (click)="showCreateModal = true">
-        Create Project
-      </button>
-      }
-    </div>
+      <div class="header-actions">
+        <ui-view-toggle [mode]="viewMode" (modeChange)="onViewModeChange($event)"></ui-view-toggle>
+        <ui-sort-control [options]="sortOptions" [(field)]="sortField"></ui-sort-control>
+        <button class="btn btn-primary" (click)="showCreateModal = true">New Project</button>
+      </div>
+    </header>
 
-
-    @if(projects.length > 0) {
-      <div class="projects-grid">
-
-      @for(project of projects; track project.id) {
-        <div class="project-card">
-          <div class="project-header">
-            <h3>{{ project.title }}</h3>
-            <span class="project-date">{{ project.createdAt | date:'short' }}</span>
-          </div>
-          <p class="project-description">{{ project.description || 'No description' }}</p>
-          <div class="project-stats">
-            <div class="stat">
-              <span class="stat-value">{{ project.videos.length || 0 }}</span>
-              <span class="stat-label">Videos</span>
+    @if (sortedProjects.length > 0) {
+      <div class="projects-grid" [class.list-view]="viewMode === 'list'">
+        @for (project of sortedProjects; track project.id) {
+          <div class="project-card">
+            <div class="project-header">
+              <h3>{{ project.title }}</h3>
+              <ui-badge [variant]="'neutral'">{{ project.videos.length || 0 }} videos</ui-badge>
             </div>
-            <div class="stat">
-              <span class="stat-value">{{ project.clientEmails.length || 0 }}</span>
-              <span class="stat-label">Clients</span>
+            <p>{{ project.description || 'No description' }}</p>
+            <div class="project-meta">
+              <span class="meta-item">{{ project.clientEmails.length || 0 }} clients</span>
+              <span class="meta-item">{{ project.createdAt | date:'short' }}</span>
+            </div>
+            <div class="project-actions">
+              <a [routerLink]="['/projects', project.id]" class="btn btn-primary btn-sm">View</a>
+              @if (canEditProject(project)) {
+                <button class="btn btn-secondary btn-sm" (click)="editProject(project)">Edit</button>
+              }
             </div>
           </div>
-          <div class="project-actions">
-            <a [routerLink]="['/projects', project.id]" class="btn btn-primary">View Project</a>
-            @if(canEditProject(project)) {
-              <button class="btn btn-secondary" (click)="editProject(project)">
-              Edit
-            </button>
-            }
-          </div>
-        </div>
-      }
+        }
       </div>
     } @else {
       <div class="empty-state">
-        <div class="empty-icon">📁</div>
+        <span class="material-symbols-outlined empty-icon">folder_open</span>
         <h3>No Projects Yet</h3>
         <p>Create your first project to get started with video collaboration.</p>
-        @if(isAdmin) {
-          <button class="btn btn-primary" (click)="showCreateModal = true">
-          Create Your First Project
-        </button>
-        }
+        <button class="btn btn-primary" (click)="showCreateModal = true">Create Your First Project</button>
       </div>
     }
   </div>
 </div>
 
-<!-- Create/Edit Project Modal -->
-@if(showCreateModal || showEditModal) {
+@if (showCreateModal || showEditModal) {
   <div class="modal-overlay" (click)="closeModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-
-      <h2>{{ editingProject ? 'Edit Project' : 'Create New Project' }}</h2>
-      <button class="close-btn" (click)="closeModal()">×</button>
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingProject ? 'Edit Project' : 'Create New Project' }}</h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+      <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="modal-form">
+        <div class="form-group">
+          <label for="title">Project Title</label>
+          <input id="title" type="text" formControlName="title" class="form-control" placeholder="Enter project title">
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" formControlName="description" class="form-control" rows="3" placeholder="Enter project description (optional)"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="clientEmails">Client Emails</label>
+          <textarea id="clientEmails" formControlName="clientEmails" class="form-control" rows="3" placeholder="Enter client email addresses (one per line)"></textarea>
+          <small class="form-text">Enter one email address per line</small>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="projectForm.invalid || isLoading">
+            {{ isLoading ? 'Saving...' : (editingProject ? 'Update Project' : 'Create Project') }}
+          </button>
+        </div>
+      </form>
     </div>
-
-    <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="modal-form">
-      <div class="form-group">
-        <label for="title">Project Title</label>
-        <input
-          type="text"
-          id="title"
-          formControlName="title"
-          class="form-control"
-          placeholder="Enter project title"
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea
-          id="description"
-          formControlName="description"
-          class="form-control"
-          rows="3"
-          placeholder="Enter project description (optional)"
-        ></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="clientEmails">Client Emails</label>
-        <textarea
-          id="clientEmails"
-          formControlName="clientEmails"
-          class="form-control"
-          rows="3"
-          placeholder="Enter client email addresses (one per line)"
-        ></textarea>
-        <small class="form-text">Enter one email address per line</small>
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">
-          Cancel
-        </button>
-        <button type="submit" class="btn btn-primary" [disabled]="projectForm.invalid || isLoading">
-          {{ isLoading ? 'Saving...' : (editingProject ? 'Update Project' : 'Create Project') }}
-        </button>
-      </div>
-    </form>
   </div>
-</div>
 }

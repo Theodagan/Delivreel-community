@@ -1,5 +1,6 @@
 import { Router } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { adminGuard } from './admin.guard';
 import { AuthService } from '../services/auth.service';
@@ -13,35 +14,35 @@ describe('adminGuard', () => {
     jest.clearAllMocks();
   });
 
-  it('allows access when user is admin', () => {
-    TestBed.configureTestingModule({
+  it('allows access when user is authenticated', () => {
+    const result$ = TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: { isAdmin: () => true } },
+        { provide: AuthService, useValue: { isAuthenticated$: of(true) } },
         { provide: Router, useValue: router },
       ],
-    });
-
-    const result = TestBed.runInInjectionContext(() =>
+    }).runInInjectionContext(() =>
       adminGuard({} as never, {} as never),
     );
 
-    expect(result).toBe(true);
-    expect(router.navigate).not.toHaveBeenCalled();
+    (result$ as any).subscribe((result: boolean) => {
+      expect(result).toBe(true);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
   });
 
-  it('redirects non-admin users to dashboard', () => {
-    TestBed.configureTestingModule({
+  it('redirects unauthenticated users to login', () => {
+    const result$ = TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: { isAdmin: () => false } },
+        { provide: AuthService, useValue: { isAuthenticated$: of(false) } },
         { provide: Router, useValue: router },
       ],
-    });
-
-    const result = TestBed.runInInjectionContext(() =>
+    }).runInInjectionContext(() =>
       adminGuard({} as never, {} as never),
     );
 
-    expect(result).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    (result$ as any).subscribe((result: boolean) => {
+      expect(result).toBe(false);
+      expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    });
   });
 });

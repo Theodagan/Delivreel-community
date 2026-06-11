@@ -8,14 +8,14 @@ import {
 } from 'typeorm';
 
 export enum UserRole {
-  ADMIN = 'admin',
-  CLIENT = 'client',
+  USER = 'user',
+  SUPER_ADMIN = 'super_admin',
 }
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column()
   name: string;
@@ -23,20 +23,18 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
-
-  @Column({
-    type: 'enum',
-    enum: ['admin', 'client'],
-    default: 'client',
-  })
-  role: string;
 
   @Column({ default: true })
   isActive: boolean;
 
-  //TODO: add a admin field to link every non-admin User to a Admin 
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role: UserRole;
 
   @CreateDateColumn()
   createdAt: Date;

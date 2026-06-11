@@ -5,12 +5,15 @@ import {
   CreateDateColumn, 
   UpdateDateColumn,
   ManyToOne,
-  JoinColumn
+  OneToMany,
+  JoinColumn,
+  Index
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity.js';
 
 @Entity('comments')
+@Index(['videoId', 'parentCommentId'])
 export class Comment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -27,14 +30,23 @@ export class Comment {
   @Column({ type: 'timestamp', nullable: true })
   resolvedAt: Date;
 
-  @Column({ type: 'uuid', nullable: true })
-  resolvedBy: string;
+  @Column({ type: 'integer', nullable: true })
+  resolvedBy: number;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'text' })
   videoId: string;
 
-  @Column({ type: 'uuid' })
-  authorId: string;
+  @Column({ type: 'text', nullable: true })
+  parentCommentId: string;
+
+  @Column({ type: 'integer' })
+  authorId: number;
+
+  @Column({ type: 'text', nullable: true })
+  authorAccessLinkId: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  authorAccessLinkLabel: string | null;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -49,4 +61,11 @@ export class Comment {
   @ManyToOne(() => User, (user) => user.comments)
   @JoinColumn({ name: 'authorId' })
   author: User;
+
+  @ManyToOne('Comment', 'replies', { nullable: true })
+  @JoinColumn({ name: 'parentCommentId' })
+  parentComment: Comment;
+
+  @OneToMany('Comment', 'parentComment')
+  replies: Comment[];
 }

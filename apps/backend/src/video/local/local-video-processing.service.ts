@@ -8,7 +8,7 @@ import { CreateVideoDto } from '../core/dto/create-video.dto.js';
 import { PlaybackSourceDto } from '../core/dto/playback-source.dto.js';
 import { UpdateVideoDto } from '../core/dto/update-video.dto.js';
 import { Video } from '../core/entities/video.entity.js';
-import { VideoProvider, VideoUserContext } from '../core/providers/video-provider.interface.js';
+import { VideoDownloadSource, VideoProvider, VideoUserContext } from '../core/providers/video-provider.interface.js';
 import { EncodingMonitorService } from '../core/services/encoding-monitor.service.js';
 import { VideoTelemetryService } from '../core/services/video-telemetry.service.js';
 import { UploadResult } from '../core/types/video-provider.types.js';
@@ -65,7 +65,7 @@ export class LocalVideoProcessingService implements VideoProvider {
     return { provider: 'local', video: savedVideo };
   }
 
-  async replaceVideo(video: Video, updateVideoDto: UpdateVideoDto, file: Express.Multer.File | undefined, userId: string): Promise<UploadResult> {
+  async replaceVideo(video: Video, updateVideoDto: UpdateVideoDto, file: Express.Multer.File | undefined, userId: number): Promise<UploadResult> {
     if (!file) {
       throw new BadRequestException('No video file provided');
     }
@@ -117,6 +117,22 @@ export class LocalVideoProcessingService implements VideoProvider {
 
   async getPlaybackSource(video: Video): Promise<PlaybackSourceDto> {
     return { type: 'local', manifestUrl: `/api/stream/${video.id}/manifest.m3u8` };
+  }
+
+  supportsDownload(video: Video): boolean {
+    return !!video.filepath && video.status === 'ready';
+  }
+
+  async getDownloadSource(video: Video): Promise<VideoDownloadSource> {
+    if (!this.supportsDownload(video)) {
+      throw new BadRequestException('Download is not available for this video');
+    }
+    return {
+      type: 'file',
+      path: video.filepath,
+      filename: video.originalFilename || video.filename,
+      mimeType: video.mimeType || 'application/octet-stream',
+    };
   }
 
   startTranscode(videoId: string, inputPath: string, provider: string) {

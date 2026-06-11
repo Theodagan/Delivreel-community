@@ -1,12 +1,31 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, switchMap, map } from 'rxjs/operators';
+import { catchError, filter, switchMap, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { PlaybackSource } from '../../video/core/playback-source';
 export type { PlaybackSource } from '../../video/core/playback-source';
 
 export type StorageProvider = string;
+
+export interface VideoProjectSummary {
+  id: string;
+  title: string;
+  ownerId: string;
+  approverIds?: string[];
+}
+
+export interface VideoCapabilities {
+  canView?: boolean;
+  canComment?: boolean;
+  canResolveComments?: boolean;
+  canUploadVideos?: boolean;
+  canDownloadVideos?: boolean;
+  canApproveVideos?: boolean;
+  canSignOffVideos?: boolean;
+  canInviteMembers?: boolean;
+  canManageSettings?: boolean;
+}
 
 export interface Video {
   id: string;
@@ -18,12 +37,21 @@ export interface Video {
   status: 'processing' | 'ready' | 'failed';
   duration?: number;
   projectId: string;
-  project: any;
+  project: VideoProjectSummary;
   comments: any[];
   createdAt: string;
   updatedAt: string;
   hlsPath?: string;
   storageProvider?: StorageProvider;
+  approvedAt?: string | null;
+  approvedBy?: string | null;
+  signedOffAt?: string | null;
+  signedOffBy?: string | null;
+  archivedAt?: string | null;
+  downloadEnabled?: boolean;
+  downloadAllowed?: boolean;
+  downloadSupported?: boolean;
+  capabilities?: VideoCapabilities;
 }
 
 export interface CreateVideoRequest {
@@ -58,6 +86,15 @@ export interface ProviderMetadata {
   showProviderBadge?: boolean;
 }
 
+export interface VideoStatusResponse {
+  id: string;
+  status: Video['status'];
+  updatedAt: string;
+  provider?: StorageProvider;
+}
+
+export type UploadProgressCallback = (progress: number) => void;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -74,17 +111,28 @@ export class VideoService {
     return this.http.get<Video>(`${this.apiUrl}/${id}`);
   }
 
-  uploadVideo(formData: FormData, file?: File): Observable<UploadResponse> {
+  getVideoStatus(id: string): Observable<VideoStatusResponse> {
+    return this.http.get<VideoStatusResponse>(`${this.apiUrl}/${id}/status`);
+  }
+
+  uploadVideo(formData: FormData, file?: File, onProgress?: UploadProgressCallback): Observable<UploadResponse> {
     return this.getProviderStatus().pipe(
       switchMap((status) => {
         if ((status.activeProvider ?? status.provider) === 'local') {
-          return this.http.post<UploadResponse>(`${this.apiUrl}/upload`, formData);
+          return this.trackHttpUpload(
+            this.http.post<UploadResponse>(`${this.apiUrl}/upload`, formData, {
+              observe: 'events',
+              reportProgress: true,
+            }),
+            onProgress,
+          );
         }
 
         if (!file) {
           throw new Error('Remote upload requires a file');
         }
 
+        onProgress?.(5);
         return this.http.post<UploadResponse>(`${this.apiUrl}/upload`, this.createRemoteUploadPayload(formData, file));
       }),
       switchMap((response) => {
@@ -96,13 +144,21 @@ export class VideoService {
           throw new Error('Remote upload requires a file');
         }
 
-        return this.http.put(response.uploadUrl, file, {
-          headers: new HttpHeaders(response.uploadHeaders),
-          responseType: 'text',
-        }).pipe(
-          map(() => response),
+        return this.trackHttpUpload(
+          this.http.put(response.uploadUrl, file, {
+            headers: new HttpHeaders(response.uploadHeaders),
+            responseType: 'text',
+            observe: 'events',
+            reportProgress: true,
+          }),
+          (progress) => onProgress?.(Math.max(5, progress)),
+        ).pipe(
+          map(() => {
+            onProgress?.(100);
+            return response;
+          }),
           catchError((error) => {
-            return this.deleteVideo(response.video.id).pipe(
+            return this.reportUploadFailed(response.video.id).pipe(
               switchMap(() => throwError(() => error)),
               catchError(() => throwError(() => error))
             );
@@ -112,8 +168,14 @@ export class VideoService {
     );
   }
 
-  updateVideo(id: string, payload: FormData, file?: File): Observable<Video | UploadResponse> {
-    return this.http.patch<Video | UploadResponse>(`${this.apiUrl}/${id}`, payload).pipe(
+  updateVideo(id: string, payload: FormData, file?: File, onProgress?: UploadProgressCallback): Observable<Video | UploadResponse> {
+    return this.trackHttpUpload(
+      this.http.patch<Video | UploadResponse>(`${this.apiUrl}/${id}`, payload, {
+        observe: 'events',
+        reportProgress: true,
+      }),
+      onProgress,
+    ).pipe(
       switchMap((response) => {
         if (!this.isRemoteUploadResponse(response)) {
           return of(response);
@@ -123,10 +185,15 @@ export class VideoService {
           throw new Error('Remote upload requires a file');
         }
 
-        return this.http.put(response.uploadUrl, file, {
-          headers: new HttpHeaders(response.uploadHeaders),
-          responseType: 'text',
-        }).pipe(
+        return this.trackHttpUpload(
+          this.http.put(response.uploadUrl, file, {
+            headers: new HttpHeaders(response.uploadHeaders),
+            responseType: 'text',
+            observe: 'events',
+            reportProgress: true,
+          }),
+          (progress) => onProgress?.(Math.max(5, progress)),
+        ).pipe(
           map(() => response)
         );
       })
@@ -135,6 +202,18 @@ export class VideoService {
 
   deleteVideo(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  updateVideoSettings(id: string, payload: { downloadEnabled?: boolean }): Observable<Video> {
+    return this.http.patch<Video>(`${this.apiUrl}/${id}/settings`, payload);
+  }
+
+  downloadVideo(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/download`, { responseType: 'blob' });
+  }
+
+  reportUploadFailed(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/upload-failed`, {});
   }
 
   getPlaybackSource(id: string): Observable<PlaybackSource> {
@@ -157,6 +236,18 @@ export class VideoService {
     return !!response && typeof response === 'object' && 'uploadUrl' in response;
   }
 
+  private trackHttpUpload<T>(events$: Observable<HttpEvent<T>>, onProgress?: UploadProgressCallback): Observable<T> {
+    return events$.pipe(
+      tap((event) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          onProgress?.(Math.round((event.loaded / event.total) * 100));
+        }
+      }),
+      filter((event): event is HttpResponse<T> => event.type === HttpEventType.Response),
+      map((event) => event.body as T),
+    );
+  }
+
   private createRemoteUploadPayload(formData: FormData, file: File): Record<string, unknown> {
     return {
       title: String(formData.get('title') ?? ''),
@@ -166,5 +257,25 @@ export class VideoService {
       size: file.size,
       mimeType: file.type || 'video/*',
     };
+  }
+
+  approveVideo(id: string): Observable<Video> {
+    return this.http.post<Video>(`${this.apiUrl}/${id}/approve`, {});
+  }
+
+  revokeApproval(id: string): Observable<Video> {
+    return this.http.delete<Video>(`${this.apiUrl}/${id}/approval`);
+  }
+
+  signOffVideo(id: string): Observable<Video> {
+    return this.http.post<Video>(`${this.apiUrl}/${id}/sign-off`, {});
+  }
+
+  revokeSignOff(id: string): Observable<Video> {
+    return this.http.delete<Video>(`${this.apiUrl}/${id}/sign-off`);
+  }
+
+  archiveVideo(id: string): Observable<Video> {
+    return this.http.post<Video>(`${this.apiUrl}/${id}/archive`, {});
   }
 }

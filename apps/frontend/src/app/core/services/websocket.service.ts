@@ -83,7 +83,6 @@ export class WebSocketService {
         commentId, 
         updateData, 
         userId: user?.id,
-        userRole: user?.role
       });
     }
   }
@@ -94,7 +93,6 @@ export class WebSocketService {
       this.socket.emit('deleteComment', { 
         commentId, 
         userId: user?.id,
-        userRole: user?.role
       });
     }
   }

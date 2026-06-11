@@ -1,115 +1,144 @@
 <div class="dashboard">
   <div class="container">
-    <div class="dashboard-header">
+    <header class="dashboard-header hero pane primary-glass">
       <h1>Dashboard</h1>
       <p>Welcome back, {{ currentUser?.name }}!</p>
-    </div>
+    </header>
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon">📁</div>
+        <span class="material-symbols-outlined stat-icon">folder_open</span>
         <div class="stat-content">
           <h3>{{ projects.length }}</h3>
-          <p>Total Projects</p>
+          <p>Active Projects</p>
         </div>
       </div>
-
       <div class="stat-card">
-        <div class="stat-icon">🎥</div>
+        <span class="material-symbols-outlined stat-icon">movie</span>
         <div class="stat-content">
           <h3>{{ videos.length }}</h3>
           <p>Total Videos</p>
         </div>
       </div>
-
       <div class="stat-card">
-        <div class="stat-icon">⚡</div>
+        <span class="material-symbols-outlined stat-icon">sync</span>
         <div class="stat-content">
           <h3>{{ processingVideos }}</h3>
           <p>Processing</p>
         </div>
       </div>
-
       <div class="stat-card">
-        <div class="stat-icon">✅</div>
+        <span class="material-symbols-outlined stat-icon">check_circle</span>
         <div class="stat-content">
           <h3>{{ readyVideos }}</h3>
-          <p>Ready to View</p>
+          <p>Ready</p>
         </div>
       </div>
     </div>
 
     <div class="dashboard-content">
-      <div class="recent-projects">
-        <div class="section-header">
-          <h2>Recent Projects</h2>
-          <a routerLink="/projects" class="btn btn-outline">View All</a>
-        </div>
-
-        @if(projects.length > 0) {
-          <div class="projects-grid">
-            <div class="project-card" *ngFor="let project of recentProjects">
+      <div class="main-column">
+        <section class="section pane liquid-glass recent-projects">
+          <div class="section-header">
+            <h2>Recent Projects</h2>
+            <a routerLink="/projects" class="btn btn-secondary">View All</a>
+          </div>
+          @if (projects.length > 0) {
+            @for (project of recentProjects; track project.id) {<div class="project-card">
               <div class="project-header">
                 <h3>{{ project.title }}</h3>
-                <span class="project-date">{{ project.createdAt | date:'short' }}</span>
+                <ui-badge [variant]="'neutral'">{{ project.videos.length || 0 }} videos</ui-badge>
               </div>
-              <p class="project-description">{{ project.description || 'No description' }}</p>
-              <div class="project-stats">
-                <span class="stat">{{ project.videos.length || 0 }} videos</span>
-                <span class="stat">{{ project.clientEmails.length || 0 }} clients</span>
+              <p>{{ project.description || 'No description' }}</p>
+              <div class="project-footer">
+                <span>{{ project.createdAt | date:'short' }}</span>
+                <a [routerLink]="['/projects', project.id]" class="btn btn-primary btn-sm">View</a>
               </div>
-              <div class="project-actions">
-                <a [routerLink]="['/projects', project.id]" class="btn btn-primary">View Project</a>
-              </div>
+            </div>}
+          } @else {
+            <div class="empty-state">
+              <span class="material-symbols-outlined empty-icon">folder_open</span>
+              <h3>No Projects Yet</h3>
+              <p>Create your first project to get started.</p>
+              <a routerLink="/projects" class="btn btn-primary">Create Project</a>
             </div>
-          </div>
-        } @else {
-          <div class="empty-state">
-            <div class="empty-icon">📁</div>
-            <h3>No Projects Yet</h3>
-            <p>Create your first project to get started with video collaboration.</p>
-            <a routerLink="/projects" class="btn btn-primary">Create Project</a>
-          </div>
-        }
+          }
+        </section>
+
+          <section class="section pane liquid-glass recent-videos">
+            <div class="section-header">
+              <h2>Recent Videos</h2>
+            </div>
+            @if (videos.length > 0) {
+              @for (video of recentVideos; track video.id) {<div class="video-item">
+                <div class="video-thumb">
+                  <span class="material-symbols-outlined">play_arrow</span>
+                </div>
+                <div class="video-info">
+                  <h4>{{ video.title }}</h4>
+                  <p>{{ video.project.title }}</p>
+                </div>
+                <ui-badge [variant]="video.status === 'ready' ? 'success' : video.status === 'failed' ? 'danger' : 'warning'">
+                  {{ video.status }}
+                </ui-badge>
+                <a [routerLink]="['/videos', video.id]" class="btn btn-primary btn-sm">Watch</a>
+              </div>}
+            } @else {
+              <div class="empty-state">
+                <h3>No Videos Yet</h3>
+                <p>Upload your first video to start collaborating.</p>
+              </div>
+            }
+          </section>
       </div>
 
-      @if (currentUser?.role !== 'client'){
-      <div class="recent-videos">
-        <div class="section-header">
-          <h2>Recent Videos</h2>
-        </div>
-        @if(videos.length > 0) {
-          <div class="videos-list">
-            <div class="video-item" *ngFor="let video of recentVideos">
-              <div class="video-thumbnail">
-                <div class="video-icon">🎥</div>
-                <div class="video-status" [class]="'status-' + video.status">
-                  {{ video.status }}
-                </div>
-              </div>
-              <div class="video-info">
-                <h4>{{ video.title }}</h4>
-                <p>{{ video.project?.title }}</p>
-                <span class="video-date">{{ video.createdAt | date:'short' }}</span>
-              </div>
-              <div class="video-actions">
-                <a [routerLink]="['/videos', video.id]"
-                  class="btn btn-primary"
-                  [class.disabled]="video.status !== 'ready'">
-                  {{ video.status === 'ready' ? 'Watch' : 'Processing...' }}
-                </a>
-              </div>
+      <aside class="side-column">
+        <section class="section pane plain activity-feed">
+          <div class="section-header">
+            <h2>Recent Activity</h2>
+          </div>
+          @if (activity.length > 0) {
+            @for (item of activity; track item.commentId) {<div class="activity-item">
+              <span class="activity-author">{{ item.author }}</span>
+              <span>{{ activityKindLabel(item.kind) }}</span>
+              <span class="activity-target">{{ item.videoTitle }}</span>
+              <span class="activity-time">{{ item.timestamp | date:'shortTime' }}</span>
+            </div>}
+          } @else {
+            <p class="empty-hint">No recent activity.</p>
+          }
+        </section>
+
+        <section class="section pane plain feedback-feed">
+          <div class="section-header">
+            <h2>Recent Feedback</h2>
+          </div>
+          @if (feedback.length > 0) {
+            @for (item of feedback; track item.commentId) {<div class="feedback-item">
+              <div class="feedback-author">{{ item.author }}</div>
+              <p class="feedback-text">"{{ item.text | slice:0:120 }}{{ item.text.length > 120 ? '...' : '' }}"</p>
+              <span class="feedback-meta">on {{ item.videoTitle }}</span>
+            </div>}
+          } @else {
+            <p class="empty-hint">No recent feedback.</p>
+          }
+        </section>
+
+        <section class="section pane plain storage-card">
+          <div class="section-header">
+            <h2>Storage</h2>
+          </div>
+          @if (storage) {
+            <div class="storage-info">
+              @if (storage.mode === 'beta') {
+                <p>{{ storage.message }}</p>
+              } @else {
+                <p>{{ formatBytes(storage.totalBytes || 0) }} used</p>
+              }
             </div>
-          </div>
-        } @else {
-          <div class="empty-state">
-            <div class="empty-icon">🎥</div>
-            <h3>No Videos Yet</h3>
-            <p>Upload your first video to start collaborating.</p>
-          </div>
-        }
-      </div>
-      }
+          }
+        </section>
+      </aside>
     </div>
   </div>
 </div>

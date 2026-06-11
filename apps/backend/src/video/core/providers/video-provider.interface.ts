@@ -5,9 +5,12 @@ import { Video } from '../entities/video.entity.js';
 import { UploadResult } from '../types/video-provider.types.js';
 
 export interface VideoUserContext {
-  userId: string;
-  userRole: string;
+  userId: number;
 }
+
+export type VideoDownloadSource =
+  | { type: 'file'; path: string; filename: string; mimeType: string }
+  | { type: 'remote'; url: string };
 
 export interface VideoProvider {
   readonly id: string;
@@ -25,4 +28,7 @@ export interface VideoProvider {
   deleteAsset(video: Video): Promise<void>;
   supportsPlayback(video: Video): Promise<boolean> | boolean;
   getPlaybackSource(video: Video, userContext: VideoUserContext): Promise<PlaybackSourceDto>;
+  supportsDownload(video: Video): Promise<boolean> | boolean;
+  getDownloadSource(video: Video, userContext: VideoUserContext): Promise<VideoDownloadSource>;
+  reconcileProcessingStatus?(video: Video): Promise<Video>;
 }

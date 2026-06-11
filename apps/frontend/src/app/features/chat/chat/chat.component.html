@@ -1,0 +1,45 @@
+<section class="chat" aria-label="Team discussion">
+  <header class="chat-header">
+    <div>
+      <h2>Team discussion</h2>
+      <p>Shared chat for this video.</p>
+    </div>
+    <button class="btn btn-secondary btn-sm" type="button" (click)="downloadTranscript()">
+      <span class="material-symbols-outlined">download</span>
+      Download transcript
+    </button>
+  </header>
+
+  <div class="chat-messages" #scrollContainer>
+    @if (messages.length === 0) {
+      <div class="empty-chat">No messages yet. Start the conversation!</div>
+    }
+    @for (msg of messages; track msg.id) {
+      <article class="chat-message">
+        <div class="msg-header">
+          <span class="msg-author">{{ msg.userName || 'User' }}</span>
+          <span class="msg-time">{{ formatTime(msg.createdAt) }}</span>
+        </div>
+        <p class="msg-text">{{ msg.message }}</p>
+      </article>
+    }
+  </div>
+
+  <div class="chat-input-area">
+    @if (sendDisabledReason || connectionError || sendError) {
+      <p class="chat-status" [class.error]="!!(connectionError || sendError)">
+        {{ sendDisabledReason || connectionError || sendError }}
+      </p>
+    }
+    <input
+      class="chat-input"
+      [(ngModel)]="newMessage"
+      placeholder="Type a message..."
+      (keydown.enter)="sendMessage()"
+      [disabled]="!isConnected || isSending || !!sendDisabledReason"
+    />
+    <button class="chat-send-btn" type="button" (click)="sendMessage()" [disabled]="!newMessage.trim() || !isConnected || isSending || !!sendDisabledReason">
+      {{ isSending ? 'Sending...' : 'Send' }}
+    </button>
+  </div>
+</section>

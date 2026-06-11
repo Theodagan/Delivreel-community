@@ -9,7 +9,8 @@ import {
   JoinColumn
 } from 'typeorm';
 
-import { User } from '../../users/entities/user.entity.js';
+import type { User } from '../../users/entities/user.entity.js';
+import type { ProjectMember } from './project-member.entity.js';
 
 @Entity('projects')
 export class Project {
@@ -25,8 +26,8 @@ export class Project {
   @Column({ type: 'text', array: true, default: [] })
   clientEmails: string[];
 
-  @Column({ type: 'uuid' })
-  ownerId: string;
+  @Column({ type: 'integer' })
+  ownerId: number;
 
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
@@ -37,13 +38,23 @@ export class Project {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.projects)
+  @ManyToOne('User', 'projects')
   @JoinColumn({ name: 'ownerId' })
   owner: User;
 
-  //TODO : add a viewer field to link every non-admin User to a Project 
-  //TODO: add a isPublic field to allow public access to a Project
-
   @OneToMany('Video', 'project')
   videos: any[];
+
+  @Column({ type: 'timestamp', nullable: true })
+  archivedAt: Date;
+
+  @Column({ type: 'integer', nullable: true })
+  archivedBy: number;
+
+  @Column({ type: 'text', array: true, default: [] })
+  approverIds: string[];
+
+  @OneToMany('ProjectMember', 'project')
+  members: ProjectMember[];
+
 }

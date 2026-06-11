@@ -1,4 +1,4 @@
-import { of, firstValueFrom } from 'rxjs';
+import { of, firstValueFrom, Subject } from 'rxjs';
 
 import { CommentService } from './comment.service';
 
@@ -29,6 +29,45 @@ describe('CommentService', () => {
     await firstValueFrom(service.createComment(payload));
 
     expect(http.post).toHaveBeenCalledWith('/api/comments', payload);
+  });
+
+  it('coalesces identical pending comment creates into one request', async () => {
+    const http = makeHttp();
+    const service = new CommentService(http as never);
+    const response = new Subject<any>();
+    const payload = { text: 'Looks good', timestamp: 3, videoId: 'video-1' };
+    http.post.mockReturnValue(response.asObservable());
+
+    const first = firstValueFrom(service.createComment(payload));
+    const second = firstValueFrom(service.createComment({ ...payload }));
+    response.next({ id: 'c1' });
+    response.complete();
+
+    await expect(Promise.all([first, second])).resolves.toEqual([{ id: 'c1' }, { id: 'c1' }]);
+    expect(http.post).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not coalesce different comment create payloads', async () => {
+    const http = makeHttp();
+    const service = new CommentService(http as never);
+    http.post.mockReturnValue(of({ id: 'c1' }));
+
+    await firstValueFrom(service.createComment({ text: 'One', timestamp: 3, videoId: 'video-1' }));
+    await firstValueFrom(service.createComment({ text: 'Two', timestamp: 3, videoId: 'video-1' }));
+
+    expect(http.post).toHaveBeenCalledTimes(2);
+  });
+
+  it('allows a later identical create after the pending request completes', async () => {
+    const http = makeHttp();
+    const service = new CommentService(http as never);
+    const payload = { text: 'Looks good', timestamp: 3, videoId: 'video-1' };
+    http.post.mockReturnValue(of({ id: 'c1' }));
+
+    await firstValueFrom(service.createComment(payload));
+    await firstValueFrom(service.createComment(payload));
+
+    expect(http.post).toHaveBeenCalledTimes(2);
   });
 
   it('updates a comment', async () => {

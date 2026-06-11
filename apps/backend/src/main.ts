@@ -78,7 +78,6 @@ async function bootstrap() {
 //         name: 'System Administrator',
 //         email: 'admin@delivreel.com',
 //         password: hashedPassword,
-//         role: 'admin',
 //         isActive: true,
 //       });
       

@@ -59,7 +59,10 @@ export class Video {
   projectId: string;
 
   @Column()
-  uploadedBy: string;
+  uploadedBy: number;
+
+  @Column({ type: 'boolean', default: false })
+  downloadEnabled: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -73,4 +76,25 @@ export class Video {
 
   @OneToMany('Comment', 'video')
   comments: any[];
+
+  // Approval
+  @Column({ type: 'timestamp', nullable: true })
+  approvedAt: Date;
+
+  @Column({ type: 'integer', nullable: true })
+  approvedBy: number;
+
+  // Sign-off
+  @Column({ type: 'timestamp', nullable: true })
+  signedOffAt: Date;
+
+  @Column({ type: 'integer', nullable: true })
+  signedOffBy: number;
+
+  // Archive
+  @Column({ type: 'timestamp', nullable: true })
+  archivedAt: Date;
+
+  @Column({ type: 'integer', nullable: true })
+  archivedBy: number;
 }

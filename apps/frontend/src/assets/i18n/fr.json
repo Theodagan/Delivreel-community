@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "Delivreel",
+    "tagline": "Collaboration vidéo pour les équipes"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "projects": "Projets",
+    "analytics": "Analytique",
+    "archive": "Archive",
+    "settings": "Paramètres",
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "logout": "Déconnexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "name": "Nom",
+    "loginTitle": "Connectez-vous à Delivreel",
+    "registerTitle": "Créer un compte",
+    "noAccount": "Pas encore de compte ?",
+    "haveAccount": "Déjà inscrit ?",
+    "signUp": "S'inscrire",
+    "signIn": "Se connecter",
+    "registerSuccess": "Compte créé avec succès.",
+    "registerFailed": "Échec de l'inscription. Veuillez réessayer.",
+    "loginFailed": "Identifiants invalides."
+  },
+  "projects": {
+    "title": "Projets",
+    "createProject": "Créer un projet",
+    "noProjects": "Aucun projet pour le moment.",
+    "newVideo": "Nouvelle vidéo",
+    "backToProject": "Retour au projet",
+    "settings": "Paramètres"
+  },
+  "videos": {
+    "title": "Vidéos",
+    "upload": "Télécharger une vidéo",
+    "uploading": "Téléchargement...",
+    "processing": "La vidéo est en cours de traitement.",
+    "failed": "Le transcodage a échoué pour cette vidéo.",
+    "watch": "Regarder",
+    "playbackError": "Source de lecture indisponible.",
+    "feedback": "Retours",
+    "chat": "Discussion",
+    "comments": "Commentaires",
+    "noComments": "Aucun commentaire pour le moment.",
+    "addComment": "Ajouter",
+    "newVersion": "Nouvelle version",
+    "download": "Télécharger",
+    "approve": "Approuver",
+    "signOff": "Valider"
+  },
+  "chat": {
+    "title": "Discussion",
+    "emptyState": "Pas encore de messages. Lancez la conversation !",
+    "placeholder": "Écrivez un message...",
+    "send": "Envoyer"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "close": "Fermer"
+  },
+  "language": {
+    "switch": "Langue",
+    "en": "English",
+    "fr": "Français"
+  }
+}

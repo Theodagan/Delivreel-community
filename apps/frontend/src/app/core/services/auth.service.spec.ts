@@ -16,15 +16,14 @@ describe('AuthService', () => {
     localStorage.setItem('access_token', 'token');
     localStorage.setItem(
       'user',
-      JSON.stringify({ id: 'u1', email: 'u@example.com', name: 'User', role: 'client' }),
+      JSON.stringify({ id: 1, email: 'u@example.com', name: 'User' }),
     );
 
     const service = new AuthService(makeHttp() as never);
 
     expect(service.getCurrentUser()).toEqual(
-      expect.objectContaining({ id: 'u1', email: 'u@example.com' }),
+      expect.objectContaining({ id: 1, email: 'u@example.com' }),
     );
-    expect(service.isAdmin()).toBe(false);
   });
 
   it('stores tokens and user info on login', async () => {
@@ -34,10 +33,10 @@ describe('AuthService', () => {
       access_token: 'access-token',
       refresh_token: 'refresh-token',
       user: {
-        id: 'u1',
+        id: 1,
         email: 'u@example.com',
         name: 'User',
-        role: 'admin',
+        role: 'user' as const,
       },
     };
     http.post.mockReturnValue(of(authResponse));
@@ -50,14 +49,13 @@ describe('AuthService', () => {
     });
     expect(localStorage.getItem('access_token')).toBe('access-token');
     expect(localStorage.getItem('refresh_token')).toBe('refresh-token');
-    expect(service.isAdmin()).toBe(true);
   });
 
   it('clears auth state on logout', () => {
     const service = new AuthService(makeHttp() as never);
     localStorage.setItem('access_token', 'access-token');
     localStorage.setItem('refresh_token', 'refresh-token');
-    localStorage.setItem('user', JSON.stringify({ id: 'u1', role: 'client' }));
+    localStorage.setItem('user', JSON.stringify({ id: 1 }));
 
     service.logout();
 

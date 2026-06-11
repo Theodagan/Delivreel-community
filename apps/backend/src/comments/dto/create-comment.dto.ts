@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString, IsNumber, IsUUID, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, IsNumber, IsUUID, IsOptional, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateCommentDto {
   @ApiProperty({ example: 'This section needs to be revised' })
@@ -16,4 +16,9 @@ export class CreateCommentDto {
   @IsUUID()
   @IsNotEmpty()
   videoId: string;
+
+  @ApiPropertyOptional({ example: 'uuid-of-parent-comment', description: 'Optional parent comment for threaded replies' })
+  @IsUUID()
+  @IsOptional()
+  parentCommentId?: string;
 }

@@ -27,7 +27,6 @@ export class RegisterComponent {
       name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      role: ['client', [Validators.required]]
     });
   }
 
@@ -41,15 +40,12 @@ export class RegisterComponent {
         name: this.registerForm.value.name,
         email: this.registerForm.value.email,
         password: this.registerForm.value.password,
-        role: this.registerForm.value.role as 'admin' | 'client'
       };
 
       this.authService.register(registerData).subscribe({
         next: () => {
-          this.successMessage = 'Account created successfully! Please log in.';
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 2000);
+          this.successMessage = 'Account created successfully.';
+          this.router.navigate(['/']);
         },
         error: (error) => {
           this.errorMessage = error.error?.message || 'Registration failed. Please try again.';

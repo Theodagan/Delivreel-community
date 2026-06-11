@@ -9,7 +9,7 @@ jest.mock('socket.io-client', () => ({
 describe('WebSocketService', () => {
   const mockAuthService = {
     getToken: jest.fn().mockReturnValue('token-123'),
-    getCurrentUser: jest.fn().mockReturnValue({ id: 'u1', role: 'admin' }),
+    getCurrentUser: jest.fn().mockReturnValue({ id: 'u1' }),
   };
 
   let handlers: Record<string, (...args: any[]) => void>;
@@ -65,12 +65,10 @@ describe('WebSocketService', () => {
       commentId: 'comment-1',
       updateData: { text: 'updated' },
       userId: 'u1',
-      userRole: 'admin',
     });
     expect(socket.emit).toHaveBeenCalledWith('deleteComment', {
       commentId: 'comment-1',
       userId: 'u1',
-      userRole: 'admin',
     });
   });
 

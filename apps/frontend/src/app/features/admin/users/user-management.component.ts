@@ -27,7 +27,6 @@ export class UserManagementComponent implements OnInit {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: [''],
-      role: ['client', Validators.required],
       isActive: [true],
     });
   }
@@ -55,7 +54,7 @@ export class UserManagementComponent implements OnInit {
   startCreate() {
     this.editingUser = null;
     this.showForm = true;
-    this.userForm.reset({ role: 'client', isActive: true });
+    this.userForm.reset({ isActive: true });
     this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
     this.userForm.get('password')?.updateValueAndValidity();
   }
@@ -67,7 +66,6 @@ export class UserManagementComponent implements OnInit {
       name: user.name,
       email: user.email,
       password: '',
-      role: user.role,
       isActive: user.isActive,
     });
     this.userForm.get('password')?.clearValidators();
@@ -84,14 +82,12 @@ export class UserManagementComponent implements OnInit {
       ? this.userService.updateUser(this.editingUser.id, {
           name: value.name,
           email: value.email,
-          role: value.role,
           isActive: value.isActive,
         })
       : this.userService.createUser({
           name: value.name,
           email: value.email,
           password: value.password,
-          role: value.role,
         });
 
     request.subscribe({
@@ -132,6 +128,6 @@ export class UserManagementComponent implements OnInit {
   cancelForm() {
     this.showForm = false;
     this.editingUser = null;
-    this.userForm.reset({ role: 'client', isActive: true });
+    this.userForm.reset({ isActive: true });
   }
 }

@@ -59,4 +59,27 @@ describe('ProjectService', () => {
 
     expect(http.delete).toHaveBeenCalledWith('/api/projects/p1');
   });
+
+  it('creates a project access link through settings API', async () => {
+    const http = makeHttp();
+    const service = new ProjectService(http as never);
+    http.post.mockReturnValue(of({ token: 'dl_token' }));
+
+    await firstValueFrom(service.createProjectAccessLink('p1', { label: 'Client Review', canView: true }));
+
+    expect(http.post).toHaveBeenCalledWith('/api/projects/p1/settings/access-links', {
+      label: 'Client Review',
+      canView: true,
+    });
+  });
+
+  it('revokes a project access link', async () => {
+    const http = makeHttp();
+    const service = new ProjectService(http as never);
+    http.post.mockReturnValue(of({ id: 'link-1', status: 'revoked' }));
+
+    await firstValueFrom(service.revokeProjectAccessLink('p1', 'link-1'));
+
+    expect(http.post).toHaveBeenCalledWith('/api/projects/p1/settings/access-links/link-1/revoke', {});
+  });
 });

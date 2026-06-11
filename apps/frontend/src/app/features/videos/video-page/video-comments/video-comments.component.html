@@ -1,0 +1,129 @@
+<section class="video-comments" aria-label="Video comments" [style.--comment-highlight-color]="focusHighlightColor">
+  <header class="comments-header">
+    <div>
+      <h2>Comments ({{ rootComments.length }})</h2>
+      <p>{{ unresolvedCount }} open</p>
+    </div>
+    <div class="comments-tools">
+      <select class="custom-select comment-filter" [(ngModel)]="commentFilter" aria-label="Comment filter">
+        <button>
+          <selectedcontent></selectedcontent>
+        </button>
+        <option value="all">All</option>
+        <option value="open">Open ({{ unresolvedCount }})</option>
+        <option value="resolved">Resolved</option>
+      </select>
+      @if (canComment) {
+        <button class="btn btn-primary btn-sm" type="button" (click)="showAddComment = true">Add</button>
+      }
+    </div>
+  </header>
+
+  @if (showAddComment) {
+    <div class="comment-form-card">
+      <form [formGroup]="commentForm" (ngSubmit)="addComment()">
+        <div class="form-group">
+          <label>Comment at {{ formatTime(currentTime) }}</label>
+          <textarea formControlName="text" class="form-control" rows="2" placeholder="Enter your comment..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="cancelAddComment()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="commentForm.invalid || isCreatingComment">
+            {{ isCreatingComment ? 'Adding...' : 'Add' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <div class="comments-list">
+    @if (sortedComments.length > 0) {
+      @for (comment of sortedComments; track comment.id) {
+        <article
+          class="comment-item"
+          [class.resolved]="comment.resolved"
+          [attr.data-comment-id]="comment.id">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.author?.name || 'Unknown' }}</span>
+            <button class="comment-time" type="button" (click)="selectComment(comment)">{{ formatTime(comment.timestamp) }}</button>
+          </div>
+
+          @if (editingCommentId === comment.id) {
+            <form [formGroup]="editCommentForm" (ngSubmit)="saveCommentEdit(comment)" class="edit-comment-form">
+              <textarea formControlName="text" class="form-control" rows="2"></textarea>
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary btn-sm" (click)="cancelCommentEdit()">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="editCommentForm.invalid">Save</button>
+              </div>
+            </form>
+          } @else {
+            <p class="comment-text">{{ comment.text }}</p>
+          }
+
+          <div class="comment-footer">
+            <span class="comment-date">{{ comment.createdAt | date:'short' }}</span>
+            <div class="comment-actions">
+              @if (!comment.resolved && canComment) {
+                <button class="btn-link" type="button" (click)="startReply(comment.id)">Reply</button>
+              }
+              @if (canManageComment(comment)) {
+                @if (!comment.resolved) {
+                  <button class="btn-link" type="button" (click)="editComment(comment)">Edit</button>
+                }
+                <button class="btn-link" type="button" (click)="deleteComment(comment)">Delete</button>
+              }
+              @if (!comment.resolved && canResolveComment(comment)) {
+                <button class="btn-link" type="button" (click)="resolveComment(comment)">Resolve</button>
+              }
+              @if (comment.resolved) {
+                <ui-badge variant="success">Resolved</ui-badge>
+              }
+            </div>
+          </div>
+
+          @if (replyingToCommentId === comment.id) {
+            <div class="comment-form-card reply-form">
+              <form [formGroup]="replyForm" (ngSubmit)="submitReply(comment.id)">
+                <div class="form-group">
+                  <label>Reply to {{ comment.author?.name || 'Unknown' }}</label>
+                  <textarea formControlName="text" class="form-control" rows="2" placeholder="Enter your reply..."></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary btn-sm" (click)="cancelReply()">Cancel</button>
+                  <button type="submit" class="btn btn-primary btn-sm" [disabled]="replyForm.invalid || replyingCommentIds.has(comment.id)">
+                    {{ replyingCommentIds.has(comment.id) ? 'Replying...' : 'Reply' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          }
+
+          @if (comment.replies?.length) {
+            <div class="replies">
+              @for (reply of comment.replies; track reply.id) {
+                <article
+                  class="comment-item reply"
+                  [class.resolved]="reply.resolved"
+                  [attr.data-comment-id]="reply.id">
+                  <div class="comment-header">
+                    <span class="comment-author">{{ reply.author?.name || 'Unknown' }}</span>
+                    <button class="comment-time" type="button" (click)="selectComment(reply)">{{ formatTime(reply.timestamp) }}</button>
+                  </div>
+                  <p class="comment-text">{{ reply.text }}</p>
+                  <div class="comment-footer">
+                    <span class="comment-date">{{ reply.createdAt | date:'short' }}</span>
+                    @if (reply.resolved) {
+                      <ui-badge variant="success">Resolved</ui-badge>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </article>
+      }
+    } @else {
+      <div class="empty-comments"><p>No comments yet.</p></div>
+    }
+  </div>
+</section>

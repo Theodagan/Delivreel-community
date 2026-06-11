@@ -12,9 +12,11 @@
     <a routerLink="/projects" routerLinkActive="active" class="nav-link">
       Projects
     </a>
-    <a routerLink="/admin" routerLinkActive="active" class="nav-link" *ngIf="isAdmin">
-      Admin Panel
-    </a>
+    @if (isAdmin) {
+      <a routerLink="/admin" routerLinkActive="active" class="nav-link">
+        Admin Panel
+      </a>
+    }
   </div>  
 
   <div class="navbar-user">

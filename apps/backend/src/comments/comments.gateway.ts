@@ -63,14 +63,15 @@ export class CommentsGateway implements OnGatewayConnection, OnGatewayDisconnect
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createComment')
   async createComment(
-    @MessageBody() data: { comment: CreateCommentDto; userId: string },
+    @MessageBody() data: { comment: CreateCommentDto; userId: number },
     @ConnectedSocket() client: Socket,
   ) {
     try {
       const comment = await this.commentsService.create(data.comment, data.userId);
       
-      // Broadcast the new comment to all clients in the video room
-      this.server.to(`video-${data.comment.videoId}`).emit('commentCreated', comment);
+      const room = `video-${data.comment.videoId}`;
+      const event = comment.parentCommentId ? 'commentReplyCreated' : 'commentCreated';
+      this.server.to(room).emit(event, comment);
       
       return { success: true, comment };
     } catch (error) {
@@ -84,8 +85,7 @@ export class CommentsGateway implements OnGatewayConnection, OnGatewayDisconnect
     @MessageBody() data: { 
       commentId: string; 
       updateData: any; 
-      userId: string; 
-      userRole: string 
+      userId: number; 
     },
     @ConnectedSocket() client: Socket,
   ) {
@@ -93,8 +93,7 @@ export class CommentsGateway implements OnGatewayConnection, OnGatewayDisconnect
       const comment = await this.commentsService.update(
         data.commentId, 
         data.updateData, 
-        data.userId, 
-        data.userRole
+        data.userId,
       );
       
       // Broadcast the updated comment
@@ -111,16 +110,15 @@ export class CommentsGateway implements OnGatewayConnection, OnGatewayDisconnect
   async deleteComment(
     @MessageBody() data: { 
       commentId: string; 
-      userId: string; 
-      userRole: string 
+      userId: number; 
     },
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const comment = await this.commentsService.findOne(data.commentId);
+      const comment = await this.commentsService.findOne(data.commentId, data.userId);
       const videoId = comment.videoId;
       
-      await this.commentsService.remove(data.commentId, data.userId, data.userRole);
+      await this.commentsService.remove(data.commentId, data.userId);
       
       // Broadcast the deletion
       this.server.to(`video-${videoId}`).emit('commentDeleted', { commentId: data.commentId });

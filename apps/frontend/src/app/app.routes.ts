@@ -1,8 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { accessGuard } from './core/guards/access.guard';
 
 export const routes: Routes = [
+  {
+    path: 'share/:token',
+    loadComponent: () => import('./features/share/share-link.component').then(m => m.ShareLinkComponent)
+  },
   {
     path: '',
     redirectTo: '/dashboard',
@@ -29,7 +34,7 @@ export const routes: Routes = [
   {
     path: 'projects/:id',
     loadComponent: () => import('./features/projects/project-detail/project-detail.component').then(m => m.ProjectDetailComponent),
-    canActivate: [authGuard]
+    canActivate: [accessGuard]
   },
   {
     path: 'projects/:id/settings',
@@ -38,8 +43,8 @@ export const routes: Routes = [
   },
   {
     path: 'videos/:id',
-    loadComponent: () => import('./features/videos/video-player/video-player.component').then(m => m.VideoPlayerComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/videos/video-page/video-page.component').then(m => m.VideoPageComponent),
+    canActivate: [accessGuard]
   },
   {
     path: 'settings',
@@ -60,6 +65,16 @@ export const routes: Routes = [
     path: 'admin/projects',
     loadComponent: () => import('./features/admin/projects/project-management.component').then(m => m.ProjectManagementComponent),
     canActivate: [authGuard, adminGuard]
+  },
+  {
+    path: 'analytics',
+    loadComponent: () => import('./features/analytics/analytics-placeholder.component').then(m => m.AnalyticsPlaceholderComponent),
+    canActivate: [authGuard, adminGuard]
+  },
+  {
+    path: 'archive',
+    loadComponent: () => import('./features/archive/archive-placeholder.component').then(m => m.ArchivePlaceholderComponent),
+    canActivate: [authGuard]
   },
   {
     path: '**',

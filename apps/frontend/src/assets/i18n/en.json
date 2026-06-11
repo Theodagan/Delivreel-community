@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "Delivreel",
+    "tagline": "Video collaboration for teams"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "analytics": "Analytics",
+    "archive": "Archive",
+    "settings": "Settings",
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loginTitle": "Sign in to Delivreel",
+    "registerTitle": "Create an Account",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "signUp": "Sign Up",
+    "signIn": "Sign In",
+    "registerSuccess": "Account created successfully.",
+    "registerFailed": "Registration failed. Please try again.",
+    "loginFailed": "Invalid credentials."
+  },
+  "projects": {
+    "title": "Projects",
+    "createProject": "Create Project",
+    "noProjects": "No projects yet.",
+    "newVideo": "New Video",
+    "backToProject": "Back to Project",
+    "settings": "Settings"
+  },
+  "videos": {
+    "title": "Videos",
+    "upload": "Upload Video",
+    "uploading": "Uploading...",
+    "processing": "Video is currently processing.",
+    "failed": "Transcoding failed for this video.",
+    "watch": "Watch",
+    "playbackError": "Playback source unavailable.",
+    "feedback": "Feedback",
+    "chat": "Chat",
+    "comments": "Comments",
+    "noComments": "No comments yet.",
+    "addComment": "Add",
+    "newVersion": "New Version",
+    "download": "Download",
+    "approve": "Approve",
+    "signOff": "Sign Off"
+  },
+  "chat": {
+    "title": "Chat",
+    "emptyState": "No messages yet. Start the conversation!",
+    "placeholder": "Type a message...",
+    "send": "Send"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close"
+  },
+  "language": {
+    "switch": "Language",
+    "en": "English",
+    "fr": "Français"
+  }
+}

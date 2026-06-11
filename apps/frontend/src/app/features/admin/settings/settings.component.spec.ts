@@ -32,9 +32,15 @@ describe('SettingsComponent', () => {
     };
     const component = new SettingsComponent(settingsService as never, fb);
 
-    component.loadSettings();
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      component.loadSettings();
 
-    expect(component.settings).toBeNull();
-    expect(component.settingsError).toBe('Settings unavailable.');
+      expect(component.settings).toBeNull();
+      expect(component.settingsError).toBe('Settings unavailable.');
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load settings:', expect.any(Error));
+    } finally {
+      consoleErrorSpy.mockRestore();
+    }
   });
 });

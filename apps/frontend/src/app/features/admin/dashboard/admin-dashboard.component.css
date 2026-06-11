@@ -1,20 +1,23 @@
 .admin-dashboard {
   padding: 2rem 0;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 56px);
 }
 
 .admin-dashboard h1 {
+  font: var(--type-headline-lg);
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: var(--accent);
+  /* gradient text effect retained with tokens */
+  background: linear-gradient(135deg, var(--primary) 0%, var(--inverse-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .admin-dashboard p {
-  font-size: 1.1rem;
-  color: #cccccc;
+  font: var(--type-body-lg);
+  color: var(--fg-muted);
   margin-bottom: 3rem;
 }
 
@@ -25,9 +28,9 @@
 }
 
 .admin-card {
-  background: #1e1e1e;
-  border: 1px solid #333;
-  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   padding: 2rem;
   text-decoration: none;
   color: inherit;
@@ -35,9 +38,9 @@
 }
 
 .admin-card:hover {
-  border-color: #667eea;
+  border-color: var(--accent);
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-2);
 }
 
 .card-icon {
@@ -46,11 +49,11 @@
 }
 
 .admin-card h3 {
-  color: #ffffff;
+  color: var(--fg-default);
   margin-bottom: 0.5rem;
 }
 
 .admin-card p {
-  color: #cccccc;
+  color: var(--fg-muted);
   margin: 0;
 }

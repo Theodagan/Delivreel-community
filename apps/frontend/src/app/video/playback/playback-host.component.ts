@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 import { PlaybackSource } from '../core/playback-source';
-import { PlaybackHandle } from './playback-provider';
+import { PlaybackCuePoint, PlaybackHandle } from './playback-provider';
 import { PlaybackRegistry } from './playback-registry';
 
 @Component({
@@ -10,12 +10,13 @@ import { PlaybackRegistry } from './playback-registry';
   standalone: true,
   imports: [CommonModule],
   template: '<div #host class="playback-host"></div>',
-  styles: [':host, .playback-host { display: block; width: 100%; height: 100%; }']
+  styles: [':host, .playback-host { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; overflow: hidden; }']
 })
 export class PlaybackHostComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input({ required: true }) source: PlaybackSource | null = null;
   @Input() autoplay = false;
   @Input() token: string | null = null;
+  @Input() cuePoints: PlaybackCuePoint[] = [];
   @Output() timeUpdate = new EventEmitter<number>();
   @Output() durationChange = new EventEmitter<number>();
   @Output() playbackError = new EventEmitter<string>();
@@ -35,6 +36,11 @@ export class PlaybackHostComponent implements AfterViewInit, OnChanges, OnDestro
   ngOnChanges(changes: SimpleChanges) {
     if (changes['source'] && this.viewReady) {
       this.attachProvider();
+      return;
+    }
+
+    if (changes['cuePoints'] && this.viewReady) {
+      this.handle?.setCuePoints?.(this.cuePoints);
     }
   }
 
@@ -64,6 +70,7 @@ export class PlaybackHostComponent implements AfterViewInit, OnChanges, OnDestro
       this.handle = await provider.attach(this.host.nativeElement, this.source, {
         autoplay: this.autoplay,
         token: this.token,
+        cuePoints: this.cuePoints,
         onTimeUpdate: seconds => this.timeUpdate.emit(seconds),
         onDurationChange: seconds => this.durationChange.emit(seconds),
         onError: message => this.playbackError.emit(message),

@@ -5,10 +5,10 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface User {
-  id: string;
+  id: number;
   email: string;
   name: string;
-  role: 'admin' | 'client';
+  role: 'user' | 'super_admin';
 }
 
 export interface AuthResponse {
@@ -21,7 +21,6 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-  role?: 'admin' | 'client';
 }
 
 @Injectable({
@@ -89,11 +88,6 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
-  }
-
-  isAdmin(): boolean {
-    const user = this.getCurrentUser();
-    return user?.role === 'admin';
   }
 
   private setAuthData(authResponse: AuthResponse) {

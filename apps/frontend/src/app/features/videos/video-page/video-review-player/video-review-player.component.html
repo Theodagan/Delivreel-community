@@ -1,0 +1,44 @@
+<section class="video-stage" aria-label="Video player">
+  <div class="video-wrapper">
+    @if (isVideoReady && playbackSource) {
+      <app-playback-host
+        [source]="playbackSource"
+        [autoplay]="autoplay"
+        [token]="authService.getToken()"
+        [cuePoints]="commentCuePoints"
+        (timeUpdate)="onTimeUpdate($event)"
+        (durationChange)="onDurationChange($event)"
+        (playbackError)="playbackErrorChange.emit($event)">
+      </app-playback-host>
+    }
+    @if (playbackError) {
+      <div class="playback-error">{{ playbackError }}</div>
+    }
+    @if (!isVideoReady) {
+      <div class="video-processing-placeholder">
+        <div class="spinner"></div>
+        <p>{{ processingLabel }}</p>
+      </div>
+    }
+  </div>
+
+  @if (hasFiniteVideoDuration) {
+    <div class="comment-markers" [ngClass]="markerSizeClass" aria-label="Comment timeline markers">
+      @for (comment of timelineComments; track comment.id) {
+        <button
+          class="comment-marker"
+          [class.comment-marker-root]="!isReplyComment(comment)"
+          [class.comment-marker-reply]="isReplyComment(comment)"
+          [style.left.%]="markerPosition(comment)"
+          (click)="seekToComment(comment)"
+          [attr.aria-label]="markerLabel(comment)"
+          type="button">
+          <span class="marker-tooltip" role="tooltip">
+            <span class="marker-tooltip-time">{{ formatTime(comment.timestamp) }}</span>
+            <span class="marker-tooltip-text">{{ comment.text }}</span>
+          </span>
+        </button>
+      }
+    </div>
+  }
+</section>

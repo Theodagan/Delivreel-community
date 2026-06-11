@@ -37,7 +37,6 @@ describe('AuthService', () => {
     usersService.findByEmail.mockResolvedValue({
       id: 'u1',
       email: 'user@example.com',
-      role: 'client',
       name: 'User',
       password: 'hashed',
     });
@@ -48,7 +47,6 @@ describe('AuthService', () => {
     expect(result).toEqual({
       id: 'u1',
       email: 'user@example.com',
-      role: 'client',
       name: 'User',
     });
   });
@@ -64,7 +62,6 @@ describe('AuthService', () => {
     jest.spyOn(service, 'validateUser').mockResolvedValue({
       id: 'u1',
       email: 'user@example.com',
-      role: 'admin',
       name: 'Admin',
     });
     configService.get.mockReturnValue('refresh-secret');
@@ -83,7 +80,6 @@ describe('AuthService', () => {
       user: {
         id: 'u1',
         email: 'user@example.com',
-        role: 'admin',
         name: 'Admin',
       },
     });
@@ -103,7 +99,6 @@ describe('AuthService', () => {
     usersService.create.mockResolvedValue({
       id: 'u2',
       email: 'new@example.com',
-      role: 'client',
       name: 'New',
       password: 'hashed-password',
     });
@@ -112,7 +107,6 @@ describe('AuthService', () => {
       name: 'New',
       email: 'new@example.com',
       password: 'plain',
-      role: 'client',
     });
 
     expect(usersService.create).toHaveBeenCalledWith(
@@ -121,7 +115,6 @@ describe('AuthService', () => {
     expect(result).toEqual({
       id: 'u2',
       email: 'new@example.com',
-      role: 'client',
       name: 'New',
     });
   });
@@ -132,7 +125,6 @@ describe('AuthService', () => {
     usersService.findOne.mockResolvedValue({
       id: 'u1',
       email: 'user@example.com',
-      role: 'client',
     });
     jwtService.sign.mockReturnValue('new-access-token');
 

@@ -1,0 +1,220 @@
+/* ===== Delivreel Liquid Stained Glass Design Tokens =====
+ * Source: docs/explorations/DESIGN.md
+ * Replaces: Stitch project 305962495527444445 tokens
+ *
+ * Usage rules:
+ * - Consume via CSS variables; never hardcode hex, px, or font-family in feature CSS.
+ * - Light/dark are system-governed via CSS light-dark().
+ * - Pane tokens (--*-pane) are exclusively for decorative backgrounds — never on interactive elements.
+ * - Interactive elements use solid --ui-* or --*-btn tokens.
+ * - Master visual design: tokens.css + global_styles.css.
+ * - Component CSS: layout only (display, grid, flex, gap, padding, position, size, overflow).
+ */
+
+/* ---- Color-scheme directive ---- */
+:root { color-scheme: light dark; }
+
+/* ============================================================
+   SURFACE / GLASS TOKENS
+   ============================================================ */
+:root {
+  --ink:                light-dark(#0f1b2d, #edf3ff);
+  --muted:              light-dark(#5a6478, rgba(237,243,255,.62));
+
+  --surface:            light-dark(rgba(255,255,255,.86), rgba(12,16,40,.60));
+  --surface-soft:       light-dark(rgba(255,255,255,.58), rgba(255,255,255,.07));
+  --surface-hard:       light-dark(rgb(255 255 255 / 78%), rgba(255,255,255,.06));
+
+  --glass-edge:         light-dark(rgba(255,255,255,.88), rgba(255,255,255,.16));
+  --cell-edge:          light-dark(rgba(240,244,255,.94), rgba(255,255,255,.11));
+
+  --lead:               light-dark(rgba(15,27,45,.30), rgba(0,0,0,.55));
+  --lead-strong:        light-dark(rgba(15,27,45,.52), rgba(0,0,0,.88));
+  --came:               light-dark(rgba(15,27,45,.46), rgba(0,0,0,.72));
+
+  --plain-surface:      light-dark(rgba(255,255,255,.44), rgba(255,255,255,.025));
+  --table-surface:      light-dark(rgba(255,255,255,.52), rgba(255,255,255,.045));
+}
+
+/* ============================================================
+   PAGE BACKGROUND
+   ============================================================ */
+:root {
+  --page-a:             light-dark(#e8ecf8, #04071a);
+  --page-b:             light-dark(#f0e8f7, #080b20);
+  --page-c:             light-dark(#f7e8ee, #060812);
+}
+
+/* ============================================================
+   PANE / PATTERN COLOUR TOKENS (decorative only, low opacity)
+   ============================================================ */
+:root {
+  --primary-pane:   light-dark(rgba(26,84,240,.20), rgba(77,232,255,.20));
+  --secondary-pane: light-dark(rgba(196,125,0,.20), rgba(255,208,96,.20));
+  --accent-pane:    light-dark(rgba(214,64,144,.20), rgba(255,95,183,.20));
+  --green-pane:     light-dark(#2d7a52, #6fffc4);
+}
+
+/* ============================================================
+   UI / INTERACTIVE COLOUR TOKENS (solid, full opacity)
+   ============================================================ */
+:root {
+  --ui-primary:   light-dark(#1540d4, #73c8ff);
+  --ui-secondary: light-dark(#c47d00, #ffd060);
+  --ui-accent:    light-dark(#d64090, #ff5fb7);
+  --ui-coral:     light-dark(#cf3a54, #ff6b7a);
+}
+
+/* ============================================================
+   BUTTON TOKENS
+   ============================================================ */
+:root {
+  --primary-btn:       light-dark(#1540d4, #73c8ff);
+  --primary-btn-ink:   light-dark(#ffffff, #04101f);
+  --secondary-btn:     light-dark(#c47d00, #ffd060);
+  --secondary-btn-ink: light-dark(#ffffff, #07101f);
+  --outline:           light-dark(rgba(15,27,45,.65), rgba(237,243,255,.72));
+}
+
+/* ============================================================
+   SHADOWS
+   ============================================================ */
+:root {
+  --shadow:    light-dark(0 28px 80px rgba(50,60,100,.18), 0 32px 100px rgba(0,0,0,.62));
+  --holy-glow: light-dark(0 0 22px rgba(255,248,220,.82), 0 0 22px rgba(200,240,255,.38));
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+:root {
+  --font-display:  'DM Serif Display', serif;
+  --font-headline: 'DM Serif Display', serif;
+  --font-body:     'DM Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+  --font-caps:     'DM Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --type-display:         400 clamp(2.2rem, 5.5vw, 4.4rem)/.92 var(--font-display);
+  --type-headline-lg:     400 32px/40px var(--font-headline);
+  --type-headline-lg-mob: 400 24px/32px var(--font-headline);
+  --type-headline-md:     400 20px/28px var(--font-headline);
+  --type-body-lg:         400 16px/24px var(--font-body);
+  --type-body-md:         400 14px/20px var(--font-body);
+  --type-label-mono:      500 12px/16px var(--font-mono);
+  --type-label-caps:      800 11px/16px var(--font-caps);
+
+  --tracking-display:      -0.02em;
+  --tracking-headline-lg:  -0.01em;
+  --tracking-label-mono:    0.05em;
+  --tracking-label-caps:    0.08em;
+}
+
+/* ============================================================
+   SPACING (4px baseline)
+   ============================================================ */
+:root {
+  --space-unit:  4px;
+  --space-xs:    4px;
+  --space-sm:    8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   40px;
+  --container-max: 1440px;
+  --gutter:     20px;
+}
+
+/* ============================================================
+   RADIUS (asymmetric corner convention)
+   ============================================================ */
+:root {
+  --radius-sm:    2px;
+  --radius:       4px;
+  --radius-md:    6px;
+  --radius-lg:    8px;
+  --radius-xl:   12px;
+  --radius-full: 9999px;
+  /* Asymmetric corner pairs (big-left, small-right convention) */
+  --radius-pane:  40px 8px 40px 8px;
+  --radius-card:  28px 6px 28px 6px;
+  --radius-chip:  20px 4px 20px 4px;
+  --radius-input: 18px 4px 18px 4px;
+  --radius-btn:   6px 18px 6px 18px;
+  --radius-icon:  16px 3px 16px 3px;
+  --radius-alert: 26px 5px 26px 5px;
+}
+
+/* ============================================================
+   ELEVATION
+   ============================================================ */
+:root {
+  --shadow-1:     var(--shadow);
+  --shadow-2:     var(--shadow);
+  --shadow-focus: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 34%, transparent);
+}
+
+/* ============================================================
+   SEMANTIC COLOUR ALIASES
+   (preserved for backward compatibility with existing components)
+   ============================================================ */
+:root {
+  --bg-app:            light-dark(transparent, var(--surface));
+  --bg-elevated:       var(--surface-soft);
+  --bg-card:           var(--surface);
+  --bg-card-high:      var(--surface);
+  --fg-default:        var(--ink);
+  --fg-muted:          var(--muted);
+  --border:            var(--glass-edge);
+  --border-strong:     var(--lead-strong);
+  --accent:            var(--ui-primary);
+  --accent-on:         var(--primary-btn-ink);
+
+  --primary-container:        color-mix(in srgb, var(--primary-pane) 40%, var(--surface));
+  --on-primary-container:     var(--ui-primary);
+  --secondary-container:      color-mix(in srgb, var(--green-pane) 16%, var(--surface));
+  --on-secondary-container:   var(--green-pane);
+  --tertiary-container:       color-mix(in srgb, var(--secondary-pane) 14%, var(--surface));
+  --on-tertiary-container:    var(--ui-secondary);
+  --error-container:          light-dark(rgba(255,232,234,.78), rgba(255,107,122,.17));
+  --on-error-container:       light-dark(#821c2c, #ff9eaa);
+
+  --status-success-bg: var(--secondary-container);
+  --status-success-fg: var(--on-secondary-container);
+  --status-warn-bg:    var(--tertiary-container);
+  --status-warn-fg:    var(--on-tertiary-container);
+  --status-danger-bg:  var(--error-container);
+  --status-danger-fg:  var(--on-error-container);
+}
+
+/* ============================================================
+   LEGACY MATERIAL BRIDGE ALIASES (kept for material-theme.css)
+   ============================================================ */
+:root {
+  --primary:                var(--ui-primary);
+  --on-primary:             var(--primary-btn-ink);
+  --secondary:              var(--green-pane);
+  --on-secondary:           light-dark(#ffffff, #04101f);
+  --tertiary:               var(--ui-secondary);
+  --on-tertiary:            light-dark(#ffffff, #07101f);
+  --error:                  light-dark(#b52d44, #ff6b7a);
+  --on-error:               light-dark(#ffffff, #04101f);
+
+  --background:              light-dark(#f0f4ff, #04071a);
+  --on-background:           var(--ink);
+  --surface-dim:             var(--plain-surface);
+  --surface-bright:          var(--surface);
+  --surface-container-lowest: var(--plain-surface);
+  --surface-container-low:   var(--surface-soft);
+  --surface-container:       var(--surface);
+  --surface-container-high:  var(--surface);
+  --surface-container-highest: var(--surface);
+  --surface-variant:         var(--surface-soft);
+  --surface-tint:            var(--ui-primary);
+
+  --on-surface:              var(--ink);
+  --on-surface-variant:      var(--muted);
+  --outline:                 var(--lead-strong);
+  --outline-variant:         var(--glass-edge);
+  --inverse-surface:         light-dark(#2f3038, #dae2fd);
+  --inverse-on-surface:      light-dark(#f1f0f7, #283044);
+  --inverse-primary:         var(--ui-primary);
+}

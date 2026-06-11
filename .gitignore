@@ -21,3 +21,6 @@ dist/
 dist/*
 *.tsbuildinfo
 release/
+
+# IDE / AI tooling
+.claude/

@@ -16,6 +16,12 @@ export class LocalPlaybackProvider implements PlaybackProvider {
     const video = document.createElement('video');
     video.className = 'video-player';
     video.controls = true;
+    video.style.display = 'block';
+    video.style.width = '100%';
+    video.style.height = '100%';
+    video.style.maxWidth = '100%';
+    video.style.maxHeight = '100%';
+    video.style.objectFit = 'contain';
     host.appendChild(video);
 
     const onTimeUpdate = () => options.onTimeUpdate(Number(video.currentTime ?? 0));

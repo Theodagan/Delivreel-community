@@ -1,0 +1,1 @@
+export const UPLOAD_ACCESS_POLICY = Symbol('UPLOAD_ACCESS_POLICY');

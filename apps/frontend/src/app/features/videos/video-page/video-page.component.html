@@ -1,0 +1,236 @@
+@if (video(); as video) {
+  <div class="video-page" #videoPageRoot>
+    @if (video.status !== 'ready' && !isVideoReady()) {
+      <div class="processing-banner pane plain" [class.processing-error]="hasVideoError">
+        <p>{{ isVideoProcessing ? 'Video is currently processing. We\'ll let you know once it is ready.' : 'Transcoding failed for this video. Please upload a new file.' }}</p>
+        <button class="btn btn-secondary" type="button" (click)="navigateToProject()">Back to project</button>
+      </div>
+    }
+
+    <div class="video-review-layout" [class.comments-open]="commentsOpen()">
+      <main class="video-review-main">
+        <div class="video-page-top-actions">
+          <button class="btn btn-secondary back-to-project-action" type="button" (click)="navigateToProject()">
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+            Back to project
+          </button>
+        </div>
+        <app-video-review-player
+          [videoId]="video.id"
+          [projectId]="video.projectId"
+          [playbackSource]="playbackSource()"
+          [isVideoReady]="isVideoReady()"
+          [autoplay]="appSettings()?.autoplayOnLoad ?? false"
+          [showReplyMarkers]="showReplyMarkers()"
+          [markerSize]="appSettings()?.timelineMarkerSize ?? 'comfortable'"
+          [markerRefresh]="markerRefresh()"
+          [playbackError]="playbackError()"
+          [processingLabel]="isVideoProcessing ? 'Video is processing...' : 'Video unavailable'"
+          (timeUpdate)="onTimeUpdate($event)"
+          (commentMarkerSelected)="focusComment($event)"
+          (playbackErrorChange)="setPlaybackError($event)">
+        </app-video-review-player>
+
+        <section class="video-tabs-shell">
+          <header class="video-status-header">
+            <div class="video-heading">
+              <h1>{{ video.title }}</h1>
+              <div class="video-meta">
+                <span>{{ video.project.title }}</span>
+                <span>{{ video.createdAt | date:'medium' }}</span>
+                <span>{{ formatFileSize(video.size) }}</span>
+              </div>
+            </div>
+            <div class="video-status-tray" aria-label="Video status">
+              <ui-badge [variant]="video.approvedAt ? 'success' : 'neutral'">
+                {{ video.approvedAt ? 'Approved' : 'Awaiting approval' }}
+              </ui-badge>
+              <ui-badge [variant]="video.signedOffAt ? 'info' : 'neutral'">
+                {{ video.signedOffAt ? 'Signed off' : 'Open' }}
+              </ui-badge>
+            </div>
+          </header>
+
+          <nav class="video-tabs" role="tablist" aria-label="Video details">
+            @for (tab of tabs; track tab.id) {
+              <button
+                #commentsTabBtn
+                type="button"
+                role="tab"
+                [attr.aria-selected]="activeTab() === tab.id"
+                [class.active]="activeTab() === tab.id"
+                [class.comments-tab-trigger]="tab.id === 'comments'"
+                (click)="setActiveTab(tab.id)">
+                {{ tab.label }}
+              </button>
+            }
+          </nav>
+
+          <div class="video-tab-content" [class.comments-active]="activeTab() === 'comments'">
+            @if (activeTab() === 'chat') {
+              <app-chat
+                [videoId]="video.id"
+                [projectId]="video.projectId"
+                [canComment]="!!video.capabilities?.canComment"
+                [isSignedOff]="!!video.signedOffAt">
+              </app-chat>
+            }
+
+            @if (activeTab() === 'specs') {
+              <section class="video-specs" aria-label="Video specs">
+                <div class="spec-card">
+                  <h2>Video specs</h2>
+                  <dl>
+                    <div><dt>Title</dt><dd>{{ video.title }}</dd></div>
+                    @if (video.description) {<div><dt>Description</dt><dd>{{ video.description }}</dd></div>}
+                    <div><dt>Project</dt><dd>{{ video.project.title }}</dd></div>
+                    <div><dt>Created</dt><dd>{{ video.createdAt | date:'medium' }}</dd></div>
+                    <div><dt>File size</dt><dd>{{ formatFileSize(video.size) }}</dd></div>
+                    <div><dt>Status</dt><dd>{{ video.status }}</dd></div>
+                    <div><dt>Approval</dt><dd>{{ video.approvedAt ? 'Approved' : 'Awaiting approval' }}</dd></div>
+                    <div><dt>Sign-off</dt><dd>{{ video.signedOffAt ? 'Signed off' : 'Open' }}</dd></div>
+                    <div><dt>Download</dt><dd>{{ canDownloadVideo() ? 'Available' : 'Unavailable' }}</dd></div>
+                  </dl>
+                </div>
+              </section>
+            }
+
+            @if (activeTab() === 'comments' && isCompactCommentsLayout()) {
+              <section class="video-comments-tab" aria-label="Video comments">
+                <app-video-comments
+                  [videoId]="video.id"
+                  [projectId]="video.projectId"
+                  [projectOwnerId]="video.project.ownerId"
+                  [currentTime]="currentTime()"
+                  [focusedCommentId]="focusedCommentId()"
+                  [focusedCommentVersion]="focusedCommentVersion()"
+                  [focusHighlightColor]="'var(--ui-primary)'"
+                  [canResolveComments]="!!video.capabilities?.canResolveComments"
+                  [canComment]="!!video.capabilities?.canComment"
+                  (commentSelected)="onCommentSelected($event)"
+                  (commentsMutated)="onCommentsMutated()"
+                  (totalCountChange)="setCommentCount($event)"
+                  (unresolvedCountChange)="setUnresolvedCount($event)">
+                </app-video-comments>
+              </section>
+            }
+          </div>
+        </section>
+      </main>
+
+      @if (!isCompactCommentsLayout()) {
+        <aside class="video-comments-sidebar-container" [class.open]="commentsOpen()" aria-label="Video comments" [attr.aria-hidden]="!commentsOpen()">
+          <app-video-comments
+            [videoId]="video.id"
+            [projectId]="video.projectId"
+            [projectOwnerId]="video.project.ownerId"
+            [currentTime]="currentTime()"
+            [focusedCommentId]="focusedCommentId()"
+            [focusedCommentVersion]="focusedCommentVersion()"
+            [focusHighlightColor]="'var(--ui-primary)'"
+            [canResolveComments]="!!video.capabilities?.canResolveComments"
+            [canComment]="!!video.capabilities?.canComment"
+            (commentSelected)="onCommentSelected($event)"
+            (commentsMutated)="onCommentsMutated()"
+            (totalCountChange)="setCommentCount($event)"
+            (unresolvedCountChange)="setUnresolvedCount($event)">
+          </app-video-comments>
+        </aside>
+      }
+
+      <aside class="video-review-toolbar" aria-label="Video review actions">
+        @if (!isCompactCommentsLayout()) {
+          <button class="toolbar-button comments-action" type="button" [class.active]="commentsOpen()" (click)="toggleComments()" aria-label="Toggle comments" data-tooltip="Toggle comments">
+            <span class="material-symbols-outlined">forum</span>
+            <span class="toolbar-chip">{{ commentCount() }}</span>
+          </button>
+        }
+        @if (canActApprove()) {
+          <button class="toolbar-button approve-action" type="button" (click)="approveVideo()" aria-label="Approve video" data-tooltip="Approve this video version">
+            <span class="material-symbols-outlined">check_circle</span>
+          </button>
+        }
+        @if (canActSignOff()) {
+          <button class="toolbar-button signoff-action" type="button" (click)="signOffVideo()" aria-label="Sign off video" data-tooltip="Final sign-off for this video">
+            <span class="material-symbols-outlined">signature</span>
+          </button>
+        }
+        <button class="toolbar-button markers-action" type="button" (click)="toggleReplyMarkers()" [class.active]="showReplyMarkers()" aria-label="Toggle reply markers" data-tooltip="Show or hide reply markers on the timeline">
+          <span class="material-symbols-outlined">comment</span>
+        </button>
+        @if (canDownloadVideo()) {
+          <button class="toolbar-button download-action" type="button" (click)="downloadVideo()" [disabled]="isDownloading()" aria-label="Download video" data-tooltip="Download this video">
+            <span class="material-symbols-outlined">download</span>
+          </button>
+        }
+        @if (canUploadVideo()) {
+          <button class="toolbar-button upload-action" type="button" (click)="openUploadModal()" aria-label="Upload new version" data-tooltip="Upload a new version">
+            <span class="material-symbols-outlined">upload</span>
+          </button>
+        }
+      </aside>
+    </div>
+
+    @if (downloadError()) {<p class="download-error">{{ downloadError() }}</p>}
+  </div>
+}
+
+@if (pendingStatusRevoke(); as pendingStatus) {
+  <div class="modal-overlay" (click)="cancelStatusRevoke()">
+    <div class="modal status-confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="status-confirm-title" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="status-confirm-title">{{ pendingStatus === 'approval' ? 'Cancel approval?' : 'Cancel sign-off?' }}</h2>
+        <button class="close-btn" type="button" aria-label="Close" (click)="cancelStatusRevoke()">&times;</button>
+      </div>
+      <p>{{ pendingStatus === 'approval' ? 'This will remove the approval state from this video.' : 'This will unlock the video for feedback again.' }}</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" (click)="cancelStatusRevoke()">Keep status</button>
+        <button class="btn btn-danger" type="button" (click)="confirmStatusRevoke()">Confirm</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (!video()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading video...</p>
+  </div>
+}
+
+@if (showUploadModal()) {
+  <div class="modal-overlay" (click)="closeUploadModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>New Version</h2>
+        <button class="close-btn" type="button" (click)="closeUploadModal()">&times;</button>
+      </div>
+      <form [formGroup]="uploadForm" (ngSubmit)="onUpload()" class="modal-form">
+        <div class="form-group">
+          <label for="newTitle">Video Title</label>
+          <input id="newTitle" type="text" formControlName="title" class="form-control" placeholder="Enter video title">
+        </div>
+        <div class="form-group">
+          <label for="newDescription">Description</label>
+          <textarea id="newDescription" formControlName="description" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="newVideoFile">Video File</label>
+          <input id="newVideoFile" type="file" (change)="onFileSelected($event)" class="form-control" accept="video/*">
+        </div>
+        @if (uploadProgress() > 0) {
+          <div class="upload-progress">
+            <div class="progress-bar"><div class="progress-fill" [style.width.%]="uploadProgress()"></div></div>
+            <span class="progress-text">{{ uploadProgress() }}%</span>
+          </div>
+        }
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeUploadModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="uploadForm.invalid || !selectedFile || isUploading()">
+            {{ isUploading() ? 'Uploading...' : 'Upload Version' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

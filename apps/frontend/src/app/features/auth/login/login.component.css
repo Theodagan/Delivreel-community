@@ -3,18 +3,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  background: var(--bg-app);
   padding: 2rem;
 }
 
 .login-card {
-  background: #1e1e1e;
-  border-radius: 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
   padding: 3rem;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  border: 1px solid #333;
+  box-shadow: var(--shadow-2);
+  border: 1px solid var(--border);
 }
 
 .login-header {
@@ -23,15 +23,15 @@
 }
 
 .login-header h1 {
-  color: #ffffff;
+  color: var(--fg-default);
+  font: var(--type-display);
   font-size: 2rem;
-  font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
 .login-header p {
-  color: #cccccc;
-  font-size: 1rem;
+  color: var(--fg-muted);
+  font: var(--type-body-lg);
 }
 
 .login-form {
@@ -47,41 +47,41 @@
 }
 
 .form-group label {
-  color: #ffffff;
+  color: var(--fg-default);
   font-weight: 600;
   font-size: 0.9rem;
 }
 
 .form-control {
   padding: 0.75rem 1rem;
-  border: 1px solid #444;
-  border-radius: 8px;
-  background: #2a2a2a;
-  color: #ffffff;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface-container);
+  color: var(--fg-default);
   font-size: 1rem;
   transition: all 0.2s ease;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-focus);
 }
 
 .form-control.error {
-  border-color: #dc3545;
+  border-color: var(--error);
 }
 
 .form-control::placeholder {
-  color: #999;
+  color: var(--fg-muted);
 }
 
 .login-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--accent);
+  color: var(--accent-on);
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -91,7 +91,7 @@
 
 .login-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: var(--shadow-2);
 }
 
 .login-btn:disabled {
@@ -100,7 +100,7 @@
 }
 
 .error-message {
-  color: #dc3545;
+  color: var(--error);
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
@@ -109,16 +109,16 @@
   text-align: center;
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--border);
 }
 
 .login-footer p {
-  color: #cccccc;
+  color: var(--fg-muted);
   font-size: 0.9rem;
 }
 
 .login-footer a {
-  color: #667eea;
+  color: var(--accent);
   text-decoration: none;
   font-weight: 600;
 }

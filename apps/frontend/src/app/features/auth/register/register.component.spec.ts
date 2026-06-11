@@ -6,9 +6,7 @@ import { RegisterComponent } from './register.component';
 describe('RegisterComponent', () => {
   const fb = new FormBuilder();
 
-  it('submits register form and navigates to login after success', () => {
-    jest.useFakeTimers();
-
+  it('submits register form without role and navigates home after success', () => {
     const authService = {
       register: jest.fn().mockReturnValue(of({})),
     };
@@ -25,23 +23,18 @@ describe('RegisterComponent', () => {
       name: 'User',
       email: 'u@example.com',
       password: 'password',
-      role: 'client',
     });
 
     component.onSubmit();
-    jest.advanceTimersByTime(2000);
 
     expect(authService.register).toHaveBeenCalledWith({
       name: 'User',
       email: 'u@example.com',
       password: 'password',
-      role: 'client',
     });
     expect(component.successMessage).toContain('Account created successfully');
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(router.navigate).toHaveBeenCalledWith(['/']);
     expect(component.isLoading).toBe(false);
-
-    jest.useRealTimers();
   });
 
   it('shows error message when registration fails', () => {
@@ -63,7 +56,6 @@ describe('RegisterComponent', () => {
       name: 'User',
       email: 'u@example.com',
       password: 'password',
-      role: 'client',
     });
 
     component.onSubmit();

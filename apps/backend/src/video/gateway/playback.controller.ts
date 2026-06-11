@@ -1,14 +1,14 @@
 import { Controller, Get, NotFoundException, Param, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard.js';
+import { AccessAuthGuard } from '../../auth/guards/access-auth.guard.js';
 import { PlaybackSourceDto } from '../core/dto/playback-source.dto.js';
 import { VideoProviderRegistry } from '../core/providers/video-provider.registry.js';
 import { VideoGatewayService } from './video-gateway.service.js';
 
 @ApiTags('Video Playback')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(AccessAuthGuard)
 @Controller('videos')
 export class PlaybackController {
   constructor(
@@ -20,13 +20,13 @@ export class PlaybackController {
   @ApiResponse({ status: 200, description: 'Playback source retrieved' })
   @Get(':id/playback')
   async getPlaybackSource(@Param('id') id: string, @Request() req): Promise<PlaybackSourceDto> {
-    const video = await this.videosService.findOne(id, req.user.userId, req.user.role);
+    const video = await this.videosService.findOne(id, req.user);
 
     if (!video) {
       throw new NotFoundException('Video not found');
     }
 
     const provider = await this.videoProviderRegistry.getPlaybackProvider(video);
-    return provider.getPlaybackSource(video, { userId: req.user.userId, userRole: req.user.role });
+    return provider.getPlaybackSource(video, { userId: req.user.userId });
   }
 }

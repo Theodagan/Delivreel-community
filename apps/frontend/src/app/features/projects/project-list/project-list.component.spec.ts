@@ -6,44 +6,43 @@ import { ProjectListComponent } from './project-list.component';
 describe('ProjectListComponent', () => {
   const fb = new FormBuilder();
 
-  const makeServices = (isAdmin = false) => {
+  const makeServices = () => {
     const projectService = {
       getProjects: jest.fn().mockReturnValue(of([])),
       createProject: jest.fn().mockReturnValue(of({ id: 'p1' })),
       updateProject: jest.fn().mockReturnValue(of({ id: 'p1' })),
     };
     const authService = {
-      isAdmin: jest.fn().mockReturnValue(isAdmin),
-      getCurrentUser: jest.fn().mockReturnValue({ id: 'u1' }),
+      getCurrentUser: jest.fn().mockReturnValue({ id: 1 }),
     };
     return { projectService, authService };
   };
 
-  it('allows admin users to edit any project', () => {
-    const { projectService, authService } = makeServices(true);
+  it('does not allow non-owners to edit a project', () => {
+    const { projectService, authService } = makeServices();
     const component = new ProjectListComponent(
       projectService as never,
       authService as never,
       fb,
     );
 
-    expect(component.canEditProject({ ownerId: 'someone-else' } as never)).toBe(true);
+    expect(component.canEditProject({ ownerId: 2 } as never)).toBe(false);
   });
 
   it('allows owners to edit their own projects', () => {
-    const { projectService, authService } = makeServices(false);
+    const { projectService, authService } = makeServices();
     const component = new ProjectListComponent(
       projectService as never,
       authService as never,
       fb,
     );
 
-    expect(component.canEditProject({ ownerId: 'u1' } as never)).toBe(true);
-    expect(component.canEditProject({ ownerId: 'u2' } as never)).toBe(false);
+    expect(component.canEditProject({ ownerId: 1 } as never)).toBe(true);
+    expect(component.canEditProject({ ownerId: 2 } as never)).toBe(false);
   });
 
   it('creates a project with parsed client emails', () => {
-    const { projectService, authService } = makeServices(false);
+    const { projectService, authService } = makeServices();
     const component = new ProjectListComponent(
       projectService as never,
       authService as never,
@@ -67,7 +66,7 @@ describe('ProjectListComponent', () => {
   });
 
   it('updates current editing project', () => {
-    const { projectService, authService } = makeServices(false);
+    const { projectService, authService } = makeServices();
     const component = new ProjectListComponent(
       projectService as never,
       authService as never,

@@ -16,9 +16,11 @@
           [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
           placeholder="Enter your email"
         >
-        <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-          Please enter a valid email address
-        </div>
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <div class="error-message">
+            Please enter a valid email address
+          </div>
+        }
       </div>
 
       <div class="form-group">
@@ -31,9 +33,11 @@
           [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
           placeholder="Enter your password"
         >
-        <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-          Password is required
-        </div>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <div class="error-message">
+            Password is required
+          </div>
+        }
       </div>
 
       <button
@@ -41,13 +45,14 @@
         class="login-btn"
         [disabled]="loginForm.invalid || isLoading"
       >
-        <span *ngIf="!isLoading">Sign In</span>
-        <span *ngIf="isLoading">Signing In...</span>
+        @if (!isLoading) {<span>Sign In</span>} @else {<span>Signing In...</span>}
       </button>
 
-      <div class="error-message" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </div>
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      }
     </form>
 
     <div class="login-footer">

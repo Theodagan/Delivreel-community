@@ -27,10 +27,17 @@ describe('DashboardComponent', () => {
       ),
     };
 
+    const dashboardApi = {
+      getActivity: jest.fn().mockReturnValue(of([])),
+      getFeedback: jest.fn().mockReturnValue(of([])),
+      getStorage: jest.fn().mockReturnValue(of({ totalBytes: 0 })),
+    };
+
     const component = new DashboardComponent(
       authService as never,
       projectService as never,
       videoService as never,
+      dashboardApi as never,
     );
 
     component.ngOnInit();

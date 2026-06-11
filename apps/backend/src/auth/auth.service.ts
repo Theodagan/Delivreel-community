@@ -31,7 +31,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const payload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
@@ -44,8 +44,8 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        role: user.role,
         name: user.name,
+        role: user.role,
       },
     };
   }
@@ -72,7 +72,7 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
-      const newPayload = { email: user.email, sub: user.id, role: user.role };
+      const newPayload = { email: user.email, sub: user.id };
       const accessToken = this.jwtService.sign(newPayload);
 
       return {

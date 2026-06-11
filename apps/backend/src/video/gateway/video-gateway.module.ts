@@ -1,11 +1,14 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
 import { Project } from '../../projects/entities/project.entity.js';
+import { ProjectsModule } from '../../projects/projects.module.js';
+import { User } from '../../users/entities/user.entity.js';
 import { SettingsModule } from '../../settings/settings.module.js';
+import { UploadAccessModule } from '../../upload-access/upload-access.module.js';
 import { VideoCoreModule } from '../core/video-core.module.js';
 import { VideoProviderRegistry } from '../core/providers/video-provider.registry.js';
 import { PlaybackController } from './playback.controller.js';
@@ -15,7 +18,9 @@ import { VideosController } from './videos.controller.js';
 const baseImports = [
     VideoCoreModule,
     SettingsModule,
-    TypeOrmModule.forFeature([Project]),
+    UploadAccessModule,
+    TypeOrmModule.forFeature([Project, User]),
+    ProjectsModule,
     MulterModule.register({
       storage: diskStorage({
         destination: './uploads',
@@ -44,7 +49,7 @@ const baseImports = [
   exports: [VideoGatewayService],
 })
 export class VideoGatewayModule {
-  static register(providerImports: any[], providerTokens: any[]): DynamicModule {
+  static register(providerImports: any[], providerTokens: any[], extraProviders: Provider[] = []): DynamicModule {
     return {
       module: VideoGatewayModule,
       imports: [...baseImports, ...providerImports],
@@ -56,6 +61,7 @@ export class VideoGatewayModule {
           useFactory: (...providers) => new VideoProviderRegistry(providers),
           inject: providerTokens,
         },
+        ...extraProviders,
       ],
       exports: [VideoGatewayService],
     };

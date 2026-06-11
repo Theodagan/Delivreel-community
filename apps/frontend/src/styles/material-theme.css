@@ -1,0 +1,80 @@
+/* ===== Angular Material 20 M3 Theme Bridge =====
+ * Maps Delivreel design tokens to --mat-sys-* namespace.
+ * Material components automatically consume these without per-component SCSS.
+ * Spec: docs/specs/feature-visual-overhaul/design.md §6.4
+ */
+
+:root {
+  /* Primary */
+  --mat-sys-primary: var(--primary);
+  --mat-sys-on-primary: var(--on-primary);
+  --mat-sys-primary-container: var(--primary-container);
+  --mat-sys-on-primary-container: var(--on-primary-container);
+  --mat-sys-inverse-primary: var(--inverse-primary);
+  --mat-sys-primary-fixed: var(--primary-container);
+  --mat-sys-primary-fixed-dim: var(--primary);
+  --mat-sys-on-primary-fixed: var(--on-primary-container);
+  --mat-sys-on-primary-fixed-variant: var(--primary);
+
+  /* Secondary */
+  --mat-sys-secondary: var(--secondary);
+  --mat-sys-on-secondary: var(--on-secondary);
+  --mat-sys-secondary-container: var(--secondary-container);
+  --mat-sys-on-secondary-container: var(--on-secondary-container);
+  --mat-sys-secondary-fixed: var(--secondary-container);
+  --mat-sys-secondary-fixed-dim: var(--secondary);
+  --mat-sys-on-secondary-fixed: var(--on-secondary-container);
+  --mat-sys-on-secondary-fixed-variant: var(--secondary);
+
+  /* Tertiary */
+  --mat-sys-tertiary: var(--tertiary);
+  --mat-sys-on-tertiary: var(--on-tertiary);
+  --mat-sys-tertiary-container: var(--tertiary-container);
+  --mat-sys-on-tertiary-container: var(--on-tertiary-container);
+  --mat-sys-tertiary-fixed: var(--tertiary-container);
+  --mat-sys-tertiary-fixed-dim: var(--tertiary);
+  --mat-sys-on-tertiary-fixed: var(--on-tertiary-container);
+  --mat-sys-on-tertiary-fixed-variant: var(--tertiary);
+
+  /* Error */
+  --mat-sys-error: var(--error);
+  --mat-sys-on-error: var(--on-error);
+  --mat-sys-error-container: var(--error-container);
+  --mat-sys-on-error-container: var(--on-error-container);
+
+  /* Surface */
+  --mat-sys-surface: var(--surface);
+  --mat-sys-surface-dim: var(--surface-dim);
+  --mat-sys-surface-bright: var(--surface-bright);
+  --mat-sys-surface-container-lowest: var(--surface-container-lowest);
+  --mat-sys-surface-container-low: var(--surface-container-low);
+  --mat-sys-surface-container: var(--surface-container);
+  --mat-sys-surface-container-high: var(--surface-container-high);
+  --mat-sys-surface-container-highest: var(--surface-container-highest);
+  --mat-sys-surface-variant: var(--surface-variant);
+  --mat-sys-surface-tint: var(--surface-tint);
+  --mat-sys-on-surface: var(--on-surface);
+  --mat-sys-on-surface-variant: var(--on-surface-variant);
+
+  /* Inverse */
+  --mat-sys-inverse-surface: var(--inverse-surface);
+  --mat-sys-inverse-on-surface: var(--inverse-on-surface);
+
+  /* Outline */
+  --mat-sys-outline: var(--outline);
+  --mat-sys-outline-variant: var(--outline-variant);
+
+  /* Background */
+  --mat-sys-background: var(--background);
+  --mat-sys-on-background: var(--on-background);
+
+  /* Scrim */
+  --mat-sys-scrim: rgba(0, 0, 0, 0.4);
+  --mat-sys-shadow: rgba(0, 0, 0, 0.3);
+
+  /* Neutral */
+  --mat-sys-neutral: var(--on-surface-variant);
+  --mat-sys-neutral-variant: var(--surface-variant);
+  --mat-sys-neutral10: var(--on-surface);
+  --mat-sys-neutral99: var(--surface-container-highest);
+}

@@ -14,7 +14,7 @@ describe('RolesGuard', () => {
     guard = new RolesGuard(reflector as never);
   });
 
-  const createContext = (user: { role?: string }): ExecutionContext =>
+  const createContext = (user: Record<string, never> = {}): ExecutionContext =>
     ({
       getHandler: () => jest.fn(),
       getClass: () => class TestClass {},
@@ -26,18 +26,12 @@ describe('RolesGuard', () => {
   it('allows access when no roles are required', () => {
     reflector.getAllAndOverride.mockReturnValue(undefined);
 
-    expect(guard.canActivate(createContext({ role: 'client' }))).toBe(true);
+    expect(guard.canActivate(createContext())).toBe(true);
   });
 
-  it('allows access when user role matches required role', () => {
+  it('denies required global roles because project permissions are authoritative', () => {
     reflector.getAllAndOverride.mockReturnValue(['admin']);
 
-    expect(guard.canActivate(createContext({ role: 'admin' }))).toBe(true);
-  });
-
-  it('denies access when user role does not match required role', () => {
-    reflector.getAllAndOverride.mockReturnValue(['admin']);
-
-    expect(guard.canActivate(createContext({ role: 'client' }))).toBe(false);
+    expect(guard.canActivate(createContext())).toBe(false);
   });
 });

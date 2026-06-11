@@ -4,11 +4,13 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 
+export type UserRole = 'user' | 'super_admin';
+
 export interface ManagedUser {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  role: 'admin' | 'client';
+  role: UserRole;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -18,13 +20,11 @@ export interface CreateManagedUser {
   name: string;
   email: string;
   password: string;
-  role: 'admin' | 'client';
 }
 
 export interface UpdateManagedUser {
   name?: string;
   email?: string;
-  role?: 'admin' | 'client';
   isActive?: boolean;
 }
 
@@ -42,11 +42,11 @@ export class UserService {
     return this.http.post<ManagedUser>(this.apiUrl, user);
   }
 
-  updateUser(id: string, user: UpdateManagedUser): Observable<ManagedUser> {
+  updateUser(id: number, user: UpdateManagedUser): Observable<ManagedUser> {
     return this.http.patch<ManagedUser>(`${this.apiUrl}/${id}`, user);
   }
 
-  deleteUser(id: string): Observable<void> {
+  deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

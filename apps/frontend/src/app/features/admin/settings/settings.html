@@ -10,23 +10,23 @@
         </div>
       </div>
 
-      <div class="status-body" *ngIf="settingsLoading">
+      @if (settingsLoading) {<div class="status-body">
         <p class="status-hint">Loading settings...</p>
-      </div>
+      </div>}
 
-      <div class="status-body" *ngIf="!settingsLoading && settings">
+      @if (!settingsLoading && settings) {<div class="status-body">
         <div class="status-grid">
           <div>
             <span class="status-label">Environment</span>
             <span class="status-value">{{ settings.appEnvironment | titlecase }}</span>
           </div>
         </div>
-      </div>
+      </div>}
 
-      <p class="status-error" *ngIf="settingsError">{{ settingsError }}</p>
+      @if (settingsError) {<p class="status-error">{{ settingsError }}</p>}
     </section>
 
-    <form class="settings-form" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" *ngIf="settings">
+    @if (settings) {<form class="settings-form" [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
       <section class="settings-card">
         <h2>Review Preferences</h2>
 
@@ -62,11 +62,26 @@
       </section>
 
       <div class="form-actions">
-        <p class="status-value success" *ngIf="saveMessage">{{ saveMessage }}</p>
+        @if (saveMessage) {<p class="status-value success">{{ saveMessage }}</p>}
         <button type="submit" class="btn btn-primary" [disabled]="isSaving">
           {{ isSaving ? 'Saving...' : 'Save Settings' }}
         </button>
       </div>
-    </form>
+    </form>}
+
+    <section class="settings-card">
+      <h2>Workspace Security</h2>
+      <p class="status-hint">Global security defaults for projects and videos. Password enforcement for anonymous access links can be managed per project.</p>
+    </section>
+
+    <section class="settings-card">
+      <h2>Appearance</h2>
+      <p class="status-hint">Light and dark themes are governed by your system settings using CSS <code>light-dark()</code>. Manual theme selection is coming in a future update.</p>
+    </section>
+
+    <section class="settings-card">
+      <h2>Notifications</h2>
+      <p class="status-hint">Notification preferences (email, desktop, mobile) will be available in a future update.</p>
+    </section>
   </div>
 </div>

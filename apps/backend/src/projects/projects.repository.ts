@@ -8,15 +8,19 @@ export class ProjectsRepository extends Repository<Project> {
     constructor(private dataSource: DataSource) {
         super(Project, dataSource.createEntityManager());
     }
-  async findVisibleForUser(userId: string, userRole: string, userEmail: string): Promise<Project[]> {
-    const qb = this.createQueryBuilder('project')
-      .leftJoinAndSelect('project.owner', 'owner')
-      .leftJoinAndSelect('project.videos', 'videos')
-      .where('project.ownerId = :userId', { userId })
-      .orWhere(':userEmail = ANY(project.clientEmails)', { userEmail })
-      .andWhere('project.isActive = true')
-      .orderBy('project.createdAt', 'DESC');
+  async findVisibleForUser(userId: number, userEmail: string): Promise<Project[]> {
+    const projects = await this.find({
+      where: { isActive: true },
+      relations: ['owner', 'videos', 'members'],
+      order: { createdAt: 'DESC' },
+    });
 
-    return qb.getMany();
+    return projects.filter((project) =>
+      project.ownerId === userId ||
+      project.members?.some((member) =>
+        member.status !== 'disabled' && (member.userId === userId || member.email === userEmail)
+      ) ||
+      project.clientEmails?.includes(userEmail)
+    );
   }
 }

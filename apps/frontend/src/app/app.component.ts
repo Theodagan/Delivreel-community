@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet, Router } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 
 import { AuthService } from './core/services/auth.service';
-import { NavbarComponent } from './shared/components/navbar/navbar.component';
+import { AppShellComponent } from './shared/shell/app-shell.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, NavbarComponent],
+  imports: [RouterOutlet, AppShellComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -17,16 +16,12 @@ export class AppComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
   ) {}
 
   ngOnInit() {
     this.authService.isAuthenticated$.subscribe(
       isAuth => {
         this.isAuthenticated = isAuth;
-        if (!isAuth) {
-          this.router.navigate(['/login']);
-        }
       }
     );
   }
